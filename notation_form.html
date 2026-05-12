@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Notation Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181b24;
+      --surface2: #1e2230;
+      --border: #2a2f42;
+      --accent: #4f8ef7;
+      --accent2: #2ecc8f;
+      --danger: #e05a5a;
+      --orange: #f7923a;
+      --purple: #a78bfa;
+      --text: #e8eaf0;
+      --text-muted: #7a8099;
+      --label-bg: #1a1e2e;
+      --label-text: #a0aacc;
+      --label-w: 148px;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 60px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 780px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+
+    .header-left h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .header-left p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .timestamp {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .form-card {
+      width: 100%;
+      max-width: 780px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-row:last-child { border-bottom: none; }
+
+    .row-label {
+      width: var(--label-w);
+      min-width: var(--label-w);
+      background: var(--label-bg);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      border-right: 1px solid var(--border);
+      user-select: none;
+    }
+
+    .row-label span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--label-text);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .row-input { flex: 1; min-width: 0; }
+
+    .row-input input,
+    .row-input textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.88rem;
+      padding: 12px 16px;
+      resize: none;
+      line-height: 1.5;
+      transition: background 0.15s;
+    }
+    .row-input input:focus,
+    .row-input textarea:focus { background: var(--surface2); }
+    .row-input textarea { min-height: 80px; }
+    .row-input textarea.tall { min-height: 110px; }
+    input::placeholder, textarea::placeholder { color: #3a3f58; }
+
+    .resolution-wrapper { display: flex; flex-direction: column; width: 100%; }
+
+    .truck-btn-row {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px 4px;
+      flex-wrap: wrap;
+    }
+
+    .truck-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.15s;
+    }
+
+    .truck-btn-trouble {
+      background: rgba(247,146,58,0.08);
+      border-color: rgba(247,146,58,0.4);
+      color: var(--orange);
+    }
+    .truck-btn-trouble:hover { background: rgba(247,146,58,0.18); border-color: var(--orange); }
+
+    .truck-btn-install {
+      background: rgba(167,139,250,0.08);
+      border-color: rgba(167,139,250,0.4);
+      color: var(--purple);
+    }
+    .truck-btn-install:hover { background: rgba(167,139,250,0.18); border-color: var(--purple); }
+
+    .truck-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .action-bar {
+      width: 100%;
+      max-width: 780px;
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .btn-clear { background: transparent; border-color: var(--border); color: var(--text-muted); }
+    .btn-clear:hover { border-color: var(--danger); color: var(--danger); background: rgba(224,90,90,0.06); }
+    .btn-copy { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-copy:hover { background: #3a7be0; border-color: #3a7be0; }
+    .btn-copy.success { background: var(--accent2); border-color: var(--accent2); }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .toast {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--accent2);
+      color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 10px 18px;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .form-row:focus-within .row-label { background: #1d2236; }
+    .form-row:focus-within .row-label span { color: var(--accent); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,12,20,0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      padding: 16px;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 1;
+    }
+
+    .modal-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .modal-title.trouble { color: var(--orange); }
+    .modal-title.install { color: var(--purple); }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 20px; }
+
+    .modal-section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* Date grid — scrollable row */
+    .date-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .date-scroll::-webkit-scrollbar { height: 4px; }
+    .date-scroll::-webkit-scrollbar-track { background: transparent; }
+    .date-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .date-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.12s;
+      background: var(--surface2);
+      min-width: 54px;
+      flex-shrink: 0;
+    }
+    .date-cell:hover { border-color: var(--accent); }
+    .date-cell.selected-trouble { border-color: var(--orange); background: rgba(247,146,58,0.12); }
+    .date-cell.selected-install { border-color: var(--purple); background: rgba(167,139,250,0.12); }
+
+    .date-cell .dow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .date-cell .day-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 2px;
+    }
+    .date-cell .month-abbr {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .date-cell.today .day-num { color: var(--accent); }
+    .date-cell.today .dow { color: var(--accent); }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .time-btn {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.12s;
+      text-align: center;
+    }
+    .time-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .time-btn.selected-trouble { border-color: var(--orange); background: rgba(247,146,58,0.12); color: var(--orange); }
+    .time-btn.selected-install { border-color: var(--purple); background: rgba(167,139,250,0.12); color: var(--purple); }
+
+    .modal-notes {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.86rem;
+      padding: 10px 14px;
+      resize: vertical;
+      min-height: 70px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      transition: border-color 0.15s;
+    }
+    .modal-notes:focus { border-color: var(--accent); }
+
+    .modal-confirm {
+      width: 100%;
+      padding: 11px;
+      border-radius: 7px;
+      border: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-confirm.trouble { background: var(--orange); color: #fff; }
+    .modal-confirm.trouble:hover { background: #e07820; }
+    .modal-confirm.install { background: var(--purple); color: #fff; }
+    .modal-confirm.install:hover { background: #8b6fe0; }
+    .modal-confirm:disabled { opacity: 0.35; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <h1>Notation Form</h1>
+      <p>// Agent call log &amp; documentation</p>
+    </div>
+    <div class="timestamp" id="clock">--</div>
+  </header>
+
+  <div class="form-card" id="notationForm">
+
+    <div class="form-row">
+      <div class="row-label"><span>Name</span></div>
+      <div class="row-input">
+        <input type="text" id="f-name" placeholder="Customer full name" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label"><span>Address</span></div>
+      <div class="row-input">
+        <input type="text" id="f-address" placeholder="Street, city, state, ZIP" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label"><span>Phone Number</span></div>
+      <div class="row-input">
+        <input type="tel" id="f-phone" placeholder="(000) 000-0000" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label"><span>Account #</span></div>
+      <div class="row-input">
+        <input type="text" id="f-account" placeholder="Account number" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label"><span>Issue</span></div>
+      <div class="row-input">
+        <textarea id="f-issue" placeholder="Describe the customer's issue..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label"><span>Troubleshooting</span></div>
+      <div class="row-input">
+        <textarea id="f-troubleshooting" class="tall" placeholder="Steps taken to troubleshoot..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label" style="align-items:flex-start; padding-top:14px;"><span>Resolution</span></div>
+      <div class="row-input">
+        <div class="resolution-wrapper">
+          <div class="truck-btn-row">
+            <button class="truck-btn truck-btn-trouble" onclick="openModal('trouble')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              Trouble Truck Roll
+            </button>
+            <button class="truck-btn truck-btn-install" onclick="openModal('install')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+              Install Truck Roll
+            </button>
+          </div>
+          <textarea id="f-resolution" placeholder="Appointment details will appear here after scheduling, or type manually..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="row-label"><span>Agent Name</span></div>
+      <div class="row-input">
+        <input type="text" id="f-agent" placeholder="Your name" />
+      </div>
+    </div>
+
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-clear" onclick="clearForm()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+      </svg>
+      Clear
+    </button>
+    <button class="btn btn-copy" id="copyBtn" onclick="copyNotes()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+      Copy Notes
+    </button>
+  </div>
+
+  <div class="toast" id="toast">✓ Copied to clipboard</div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">Schedule Truck Roll</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="modal-section-label">Select a Date</div>
+        <div class="date-scroll" id="dateGrid"></div>
+
+        <div class="modal-section-label">Select a Time Window</div>
+        <div class="time-grid" id="timeGrid"></div>
+
+        <div class="modal-section-label">Notes / Issue Details</div>
+        <textarea class="modal-notes" id="modalNotes" placeholder="Describe the issue or reason for the visit..."></textarea>
+
+        <button class="modal-confirm" id="modalConfirm" onclick="confirmSchedule()" disabled>
+          Add to Resolution
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TROUBLE_TIMES = [
+      '8:00 AM – 10:00 AM',
+      '10:00 AM – 12:00 PM',
+      '11:00 AM – 1:00 PM',
+      '1:00 PM – 3:00 PM',
+      '3:00 PM – 5:00 PM',
+      '5:00 PM – 8:00 PM',
+      '8:00 PM – 10:00 PM',
+    ];
+
+    const INSTALL_TIMES = [
+      '8:00 AM – 10:00 AM',
+      '10:00 AM – 12:00 PM',
+      '1:00 PM – 3:00 PM',
+      '3:00 PM – 5:00 PM',
+      '5:00 PM – 7:00 PM',
+    ];
+
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    let currentMode = 'trouble';
+    let selectedDate = null;
+    let selectedTime = null;
+
+    function buildDateGrid() {
+      const grid = document.getElementById('dateGrid');
+      grid.innerHTML = '';
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      for (let i = 0; i <= 30; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+
+        const cell = document.createElement('div');
+        cell.className = 'date-cell' + (i === 0 ? ' today' : '');
+        cell.dataset.iso = d.toISOString().split('T')[0];
+
+        cell.innerHTML = `
+          <span class="dow">${DAYS[d.getDay()]}</span>
+          <span class="day-num">${d.getDate()}</span>
+          <span class="month-abbr">${MONTHS[d.getMonth()]}</span>
+        `;
+
+        cell.addEventListener('click', () => selectDate(cell, d));
+        grid.appendChild(cell);
+      }
+    }
+
+    function selectDate(cell, dateObj) {
+      document.querySelectorAll('.date-cell').forEach(c =>
+        c.classList.remove('selected-trouble', 'selected-install'));
+      cell.classList.add(`selected-${currentMode}`);
+      selectedDate = dateObj;
+      updateConfirmBtn();
+    }
+
+    function buildTimeGrid() {
+      const grid = document.getElementById('timeGrid');
+      grid.innerHTML = '';
+      const times = currentMode === 'trouble' ? TROUBLE_TIMES : INSTALL_TIMES;
+      times.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'time-btn';
+        btn.textContent = t;
+        btn.addEventListener('click', () => selectTime(btn, t));
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectTime(btn, time) {
+      document.querySelectorAll('.time-btn').forEach(b =>
+        b.classList.remove('selected-trouble', 'selected-install'));
+      btn.classList.add(`selected-${currentMode}`);
+      selectedTime = time;
+      updateConfirmBtn();
+    }
+
+    function updateConfirmBtn() {
+      document.getElementById('modalConfirm').disabled = !(selectedDate && selectedTime);
+    }
+
+    function openModal(mode) {
+      currentMode = mode;
+      selectedDate = null;
+      selectedTime = null;
+
+      const title = document.getElementById('modalTitle');
+      title.textContent = mode === 'trouble' ? 'Schedule Trouble Truck Roll' : 'Schedule Install Truck Roll';
+      title.className = `modal-title ${mode}`;
+
+      const confirm = document.getElementById('modalConfirm');
+      confirm.className = `modal-confirm ${mode}`;
+      confirm.disabled = true;
+
+      document.getElementById('modalNotes').value = '';
+
+      buildDateGrid();
+      buildTimeGrid();
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    function confirmSchedule() {
+      if (!selectedDate || !selectedTime) return;
+
+      const typeLabel = currentMode === 'trouble' ? 'Trouble Truck Roll' : 'Install Truck Roll';
+      const dow    = DAYS[selectedDate.getDay()];
+      const mon    = MONTHS[selectedDate.getMonth()];
+      const day    = selectedDate.getDate();
+      const yr     = selectedDate.getFullYear();
+      const dateStr = `${dow}, ${mon} ${day}, ${yr}`;
+
+      const name  = document.getElementById('f-name').value.trim();
+      const phone = document.getElementById('f-phone').value.trim();
+      const notes = document.getElementById('modalNotes').value.trim();
+
+      let lines = [];
+      lines.push(`[${typeLabel}]`);
+      lines.push(`Date: ${dateStr}`);
+      lines.push(`Time: ${selectedTime}`);
+      if (name)  lines.push(`Name: ${name}`);
+      if (phone) lines.push(`Phone: ${phone}`);
+      if (notes) lines.push(`Notes: ${notes}`);
+
+      const existing = document.getElementById('f-resolution').value.trim();
+      document.getElementById('f-resolution').value =
+        existing ? existing + '\n\n' + lines.join('\n') : lines.join('\n');
+
+      closeModal();
+    }
+
+    // Live clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleString('en-US', {
+        month: 'short', day: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+      });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const fields = [
+      { id: 'f-name',            label: 'Name',            group: 1 },
+      { id: 'f-address',         label: 'Address',         group: 1 },
+      { id: 'f-phone',           label: 'Phone Number',    group: 1 },
+      { id: 'f-account',         label: 'Account Number',  group: 1 },
+      { id: 'f-issue',           label: 'Issue',           group: 2 },
+      { id: 'f-troubleshooting', label: 'Troubleshooting', group: 3 },
+      { id: 'f-resolution',      label: 'Resolution',      group: 4 },
+      { id: 'f-agent',           label: 'Agent Name',      group: 5 },
+    ];
+
+    // Save agent name whenever it changes
+    document.getElementById('f-agent').addEventListener('input', function() {
+      localStorage.setItem('agentName', this.value);
+    });
+
+    // Load saved agent name on page load
+    const savedAgent = localStorage.getItem('agentName');
+    if (savedAgent) document.getElementById('f-agent').value = savedAgent;
+
+    function clearForm() {
+      if (!confirm('Clear all fields?')) return;
+      fields.forEach(f => {
+        if (f.id === 'f-agent') return; // keep agent name
+        const el = document.getElementById(f.id);
+        if (el) el.value = '';
+      });
+      document.getElementById('f-name').focus();
+    }
+
+    function copyNotes() {
+      const lines = [];
+      let lastGroup = null;
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        const val = el ? el.value.trim() : '';
+        if (!val) return;
+        if (lastGroup !== null && f.group !== lastGroup) lines.push('');
+        lines.push(`${f.label}: ${val}`);
+        lastGroup = f.group;
+      });
+
+      if (lines.length === 0) { alert('Nothing to copy — form is empty.'); return; }
+
+      const text = lines.join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('success');
+        btn.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+        showToast();
+        setTimeout(() => {
+          btn.classList.remove('success');
+          btn.querySelector('svg').innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
+        }, 2000);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        showToast();
+      });
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
