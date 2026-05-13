@@ -744,7 +744,7 @@
      <div class="row-input">
        <div class="account-wrap">
          <span class="account-prefix" aria-hidden="true">C</span>
-         <input type="text" id="f-account" placeholder="00000000" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="Account number (C prefix added automatically)" />
+         <input type="text" id="f-account" placeholder="00000000" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="Account number (C prefix added automatically)" />
          <div class="acct-validator" id="acctValidator" aria-hidden="true">
            <div class="acct-pip-row" id="acctPips"></div>
            <div class="acct-check">
@@ -960,7 +960,7 @@
        return;
      }
      validator.classList.add('visible');
-     const complete = len === 9;
+     const complete = len === 8;
      validator.classList.toggle('complete', complete);
      pips.forEach((pip, i) => {
        pip.classList.remove('filled','complete');
