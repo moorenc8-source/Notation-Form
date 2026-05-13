@@ -944,7 +944,7 @@
    // ── Account digits only + validator ──
    (function() {
      const pipsContainer = document.getElementById('acctPips');
-     for (let i = 0; i < 9; i++) {
+     for (let i = 0; i < 8; i++) {
        const pip = document.createElement('span');
        pip.className = 'acct-pip';
        pipsContainer.appendChild(pip);
@@ -960,7 +960,7 @@
        return;
      }
      validator.classList.add('visible');
-     const complete = len === 8;
+     const complete = len === 9;
      validator.classList.toggle('complete', complete);
      pips.forEach((pip, i) => {
        pip.classList.remove('filled','complete');
