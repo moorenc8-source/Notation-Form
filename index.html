@@ -1104,73 +1104,60 @@
    }
 
    // ── Copy Notes ──
-   function copyNotes() {
-     const v = id => document.getElementById(id).value.trim();
-     const name=v('f-name'), address=v('f-address'), phone=v('f-phone'),
-           acct=v('f-account'), issue=v('f-issue'), trouble=v('f-troubleshooting'),
-           resol=v('f-resolution'), agent=v('f-agent');
+    // Issue, Troubleshooting, Resolution each start on a NEW line after their label
+    function copyNotes() {
+      const parts = [];
 
-     if (!name&&!address&&!phone&&!acct&&!issue&&!trouble&&!resol&&!agent) {
-       showToast('⚠ Nothing to copy — form is empty.'); return;
-     }
+      // Group 1: flat header fields on one line each
+      const name    = document.getElementById('f-name').value.trim();
+      const address = document.getElementById('f-address').value.trim();
+      const phone   = document.getElementById('f-phone').value.trim();
+      const acct    = document.getElementById('f-account').value.trim();
 
-     lines.push(`CALL NOTATION — ${datestamp}  ${timestamp}`);
-     lines.push(DIV);
-     if (name)    lines.push(`Name:      ${name}`);
-     if (address) lines.push(`Address:   ${address}`);
-     if (phone)   lines.push(`Phone:     ${phone}`);
-     if (acct)    lines.push(`Account:   C${acct}`);
+      const headerLines = [];
+      if (name)    headerLines.push(`Name: ${name}`);
+      if (address) headerLines.push(`Address: ${address}`);
+      if (phone)   headerLines.push(`Phone Number: ${phone}`);
+      if (acct)    headerLines.push(`Account Number: C${acct}`);
+      if (headerLines.length) parts.push(headerLines.join('\n'));
 
-     if (issue) {
-       lines.push('');
-       lines.push('ISSUE');
-       lines.push(DIV);
-       lines.push(issue);
-     }
-     if (trouble) {
-       lines.push('');
-       lines.push('TROUBLESHOOTING');
-       lines.push(DIV);
-       lines.push(trouble);
-     }
-     if (resol) {
-       lines.push('');
-       lines.push('RESOLUTION');
-       lines.push(DIV);
-       lines.push(resol);
-     }
+      // Group 2–4: label on its own line, content below
+      const issue   = document.getElementById('f-issue').value.trim();
+      const trouble = document.getElementById('f-troubleshooting').value.trim();
+      const resol   = document.getElementById('f-resolution').value.trim();
+      const agent   = document.getElementById('f-agent').value.trim();
 
-     lines.push('');
-     lines.push(DIV);
-     lines.push(agent ? `Agent: ${agent}` : 'Agent:');
+      if (issue)   parts.push(`Issue:\n${issue}`);
+      if (trouble) parts.push(`Troubleshooting:\n${trouble}`);
+      if (resol)   parts.push(`Resolution:\n${resol}`);
+      if (agent)   parts.push(`Agent Name: ${agent}`);
 
-     const text = lines.join('\n');
-     navigator.clipboard.writeText(text).then(() => {
-       flashCopyBtn(); showToast('✓ Notes copied to clipboard');
-     }).catch(() => {
-       const ta = document.createElement('textarea');
-       ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-       document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-       flashCopyBtn(); showToast('✓ Notes copied to clipboard');
-     });
-   }
+      if (parts.length === 0) { alert('Nothing to copy — form is empty.'); return; }
 
-   function flashCopyBtn() {
-     const btn = document.getElementById('copyBtn');
-     btn.classList.add('success');
-     btn.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-     setTimeout(() => {
-       btn.classList.remove('success');
-       btn.querySelector('svg').innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
-     }, 2000);
-   }
+      const text = parts.join('\n\n');
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('success');
+        btn.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+        showToast();
+        setTimeout(() => {
+          btn.classList.remove('success');
+          btn.querySelector('svg').innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
+        }, 2000);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        showToast();
+      });
+    }
 
-   function showToast(msg) {
-     const toast = document.getElementById('toast');
-     toast.textContent = msg;
-     toast.classList.add('show');
-     setTimeout(() => toast.classList.remove('show'), 2600);
-   }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg || '✓ Copied to clipboard';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
 
    // ── Keyboard shortcuts ──
    document.addEventListener('keydown', function(e) {
