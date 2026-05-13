@@ -132,7 +132,7 @@
     .row-input textarea.tall { min-height: 110px; }
     input::placeholder, textarea::placeholder { color: #3a3f58; }
 
-    /* Account prefix display */
+    /* Account row with prefix + copy btn */
     .account-wrap {
       display: flex;
       align-items: center;
@@ -147,9 +147,22 @@
       user-select: none;
       flex-shrink: 0;
     }
-    .account-wrap input {
-      padding-left: 4px;
+    .account-wrap input { padding-left: 4px; }
+    .account-copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      transition: color 0.15s;
+      height: 100%;
     }
+    .account-copy-btn:hover { color: var(--accent); }
+    .account-copy-btn.copied { color: var(--accent2); }
+    .account-copy-btn svg { width: 14px; height: 14px; }
 
     .resolution-wrapper { display: flex; flex-direction: column; width: 100%; }
 
@@ -180,14 +193,12 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
     .truck-btn-trouble {
       background: rgba(247,146,58,0.08);
       border-color: rgba(247,146,58,0.4);
       color: var(--orange);
     }
     .truck-btn-trouble:hover { background: rgba(247,146,58,0.18); border-color: var(--orange); }
-
     .truck-btn-install {
       background: rgba(167,139,250,0.08);
       border-color: rgba(167,139,250,0.4);
@@ -196,7 +207,7 @@
     .truck-btn-install:hover { background: rgba(167,139,250,0.18); border-color: var(--purple); }
     .truck-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
 
-    /* Action bar — always in a row, never wraps */
+    /* Action bar */
     .action-bar {
       width: 100%;
       max-width: 780px;
@@ -224,7 +235,6 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
     .btn-clear { background: transparent; border-color: var(--border); color: var(--text-muted); }
     .btn-clear:hover { border-color: var(--danger); color: var(--danger); background: rgba(224,90,90,0.06); }
     .btn-copy { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -232,7 +242,6 @@
     .btn-copy.success { background: var(--accent2); border-color: var(--accent2); }
     .btn svg { width: 13px; height: 13px; flex-shrink: 0; }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 28px; right: 28px;
@@ -252,7 +261,6 @@
     }
     .toast.show { opacity: 1; transform: translateY(0); }
 
-    /* Undo bar */
     .undo-bar {
       position: fixed;
       bottom: 28px;
@@ -274,11 +282,7 @@
       box-shadow: 0 4px 24px rgba(0,0,0,0.4);
     }
     .undo-bar.show { transform: translateX(-50%) translateY(0); }
-    .undo-bar-timer {
-      font-weight: 600;
-      color: var(--danger);
-      min-width: 20px;
-    }
+    .undo-bar-timer { font-weight: 600; color: var(--danger); min-width: 20px; }
     .undo-btn {
       background: var(--danger);
       color: #fff;
@@ -338,7 +342,6 @@
       background: var(--surface);
       z-index: 1;
     }
-
     .modal-title {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.85rem;
@@ -403,36 +406,19 @@
     .date-cell:hover { border-color: var(--accent); }
     .date-cell.selected-trouble { border-color: var(--orange); background: rgba(247,146,58,0.12); }
     .date-cell.selected-install { border-color: var(--purple); background: rgba(167,139,250,0.12); }
-
-    .date-cell .dow {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .date-cell .day-num {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-top: 2px;
-    }
-    .date-cell .month-abbr {
-      font-size: 0.6rem;
-      color: var(--text-muted);
-      font-family: 'IBM Plex Mono', monospace;
-    }
+    .date-cell .dow { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .date-cell .day-num { font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; color: var(--text); margin-top: 2px; }
+    .date-cell .month-abbr { font-size: 0.6rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; }
     .date-cell.today .day-num { color: var(--accent); }
     .date-cell.today .dow { color: var(--accent); }
 
+    /* Time grid — All Day option styled prominently */
     .time-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-bottom: 20px;
     }
-
     .time-btn {
       padding: 10px 12px;
       border-radius: 6px;
@@ -448,6 +434,8 @@
     .time-btn:hover { border-color: var(--accent); color: var(--accent); }
     .time-btn.selected-trouble { border-color: var(--orange); background: rgba(247,146,58,0.12); color: var(--orange); }
     .time-btn.selected-install { border-color: var(--purple); background: rgba(167,139,250,0.12); color: var(--purple); }
+    .time-btn.all-day-btn { grid-column: 1 / -1; font-weight: 600; letter-spacing: 0.06em; }
+    .time-btn.all-day-btn.selected-trouble { border-color: var(--orange); background: rgba(247,146,58,0.15); color: var(--orange); }
 
     .modal-notes {
       width: 100%;
@@ -526,6 +514,11 @@
         <div class="account-wrap">
           <span class="account-prefix">C</span>
           <input type="text" id="f-account" placeholder="000000000" inputmode="numeric" />
+          <button class="account-copy-btn" id="acctCopyBtn" onclick="copyAccountNumber()" title="Copy account number">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -593,7 +586,6 @@
 
   <div class="toast" id="toast">✓ Copied to clipboard</div>
 
-  <!-- Undo bar -->
   <div class="undo-bar" id="undoBar">
     Form cleared — restore in <span class="undo-bar-timer" id="undoTimer">60</span>s
     <button class="undo-btn" onclick="restoreForm()">↩ Restore</button>
@@ -610,11 +602,11 @@
         <div class="modal-section-label">Select a Date</div>
         <div class="date-scroll" id="dateGrid"></div>
 
-        <div class="modal-section-label">Select a Time Window</div>
+        <div class="modal-section-label" id="timeLabel">Select a Time Window</div>
         <div class="time-grid" id="timeGrid"></div>
 
-        <div class="modal-section-label">Notes / Issue Details</div>
-        <textarea class="modal-notes" id="modalNotes" placeholder="Describe the issue or reason for the visit..."></textarea>
+        <div class="modal-section-label">Issue / Notes</div>
+        <textarea class="modal-notes" id="modalNotes" placeholder="Brief description of the issue..."></textarea>
 
         <button class="modal-confirm" id="modalConfirm" onclick="confirmSchedule()" disabled>
           Add to Resolution
@@ -624,49 +616,61 @@
   </div>
 
   <script>
+    // Time slots — short display format for output
     const TROUBLE_TIMES = [
-      '8:00 AM – 10:00 AM',
-      '10:00 AM – 12:00 PM',
-      '11:00 AM – 1:00 PM',
-      '1:00 PM – 3:00 PM',
-      '3:00 PM – 5:00 PM',
-      '5:00 PM – 8:00 PM',
-      '8:00 PM – 10:00 PM',
+      { label: '8-10am',   full: '8:00 AM – 10:00 AM' },
+      { label: '10am-12pm', full: '10:00 AM – 12:00 PM' },
+      { label: '11am-1pm', full: '11:00 AM – 1:00 PM' },
+      { label: '1-3pm',    full: '1:00 PM – 3:00 PM' },
+      { label: '3-5pm',    full: '3:00 PM – 5:00 PM' },
+      { label: '5-8pm',    full: '5:00 PM – 8:00 PM' },
+      { label: '8-10pm',   full: '8:00 PM – 10:00 PM' },
     ];
 
     const INSTALL_TIMES = [
-      '8:00 AM – 10:00 AM',
-      '10:00 AM – 12:00 PM',
-      '1:00 PM – 3:00 PM',
-      '3:00 PM – 5:00 PM',
-      '5:00 PM – 7:00 PM',
+      { label: '8-10am',    full: '8:00 AM – 10:00 AM' },
+      { label: '10am-12pm', full: '10:00 AM – 12:00 PM' },
+      { label: '1-3pm',     full: '1:00 PM – 3:00 PM' },
+      { label: '3-5pm',     full: '3:00 PM – 5:00 PM' },
+      { label: '5-7pm',     full: '5:00 PM – 7:00 PM' },
     ];
 
     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-    let currentMode = 'trouble';
+    let currentMode  = 'trouble';
     let selectedDate = null;
-    let selectedTime = null;
+    let selectedTime = null; // stores the short label string
 
-    // ── Phone: digits only ──
+    // ── Phone formatting ──
     document.getElementById('f-phone').addEventListener('input', function() {
       const digits = this.value.replace(/\D/g, '').slice(0, 10);
       let formatted = digits;
-      if (digits.length >= 7) {
-        formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
-      } else if (digits.length >= 4) {
-        formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
-      } else if (digits.length >= 1) {
-        formatted = `(${digits}`;
-      }
+      if (digits.length >= 7)      formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+      else if (digits.length >= 4) formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+      else if (digits.length >= 1) formatted = `(${digits}`;
       this.value = formatted;
     });
 
-    // ── Account: digits only, C prefix shown separately ──
+    // ── Account: digits only ──
     document.getElementById('f-account').addEventListener('input', function() {
       this.value = this.value.replace(/\D/g, '');
     });
+
+    // ── Copy account number ──
+    function copyAccountNumber() {
+      const val = 'C' + document.getElementById('f-account').value.trim();
+      if (val === 'C') { return; }
+      navigator.clipboard.writeText(val).then(() => {
+        const btn = document.getElementById('acctCopyBtn');
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+        }, 2000);
+      }).catch(() => {});
+    }
 
     // ── Agent name persistence ──
     document.getElementById('f-agent').addEventListener('input', function() {
@@ -675,7 +679,7 @@
     const savedAgent = localStorage.getItem('agentName');
     if (savedAgent) document.getElementById('f-agent').value = savedAgent;
 
-    // ── Undo / Restore ──
+    // ── Snapshot / Undo ──
     let savedSnapshot = null;
     let undoCountdown = null;
 
@@ -692,26 +696,18 @@
 
     function snapshotForm() {
       const snap = {};
-      fields.forEach(f => {
-        const el = document.getElementById(f.id);
-        if (el) snap[f.id] = el.value;
-      });
+      fields.forEach(f => { const el = document.getElementById(f.id); if (el) snap[f.id] = el.value; });
       return snap;
     }
 
     function clearForm() {
-      // Save snapshot before clearing
       savedSnapshot = snapshotForm();
-
-      // Clear all except agent
       fields.forEach(f => {
         if (f.id === 'f-agent') return;
         const el = document.getElementById(f.id);
         if (el) el.value = '';
       });
       document.getElementById('f-name').focus();
-
-      // Start undo countdown
       startUndoCountdown();
     }
 
@@ -721,7 +717,6 @@
       let secs = 60;
       timerEl.textContent = secs;
       bar.classList.add('show');
-
       if (undoCountdown) clearInterval(undoCountdown);
       undoCountdown = setInterval(() => {
         secs--;
@@ -745,14 +740,14 @@
       savedSnapshot = null;
     }
 
-    // ── Copy Notes ──
+    // ── Copy Notes — flat single-line resolution entries ──
     function copyNotes() {
       const lines = [];
       let lastGroup = null;
+
       fields.forEach(f => {
         const el = document.getElementById(f.id);
         let val = el ? el.value.trim() : '';
-        // Prepend C for account number in copied output
         if (f.id === 'f-account' && val) val = 'C' + val;
         if (!val) return;
         if (lastGroup !== null && f.group !== lastGroup) lines.push('');
@@ -780,8 +775,9 @@
       });
     }
 
-    function showToast() {
+    function showToast(msg) {
       const toast = document.getElementById('toast');
+      toast.textContent = msg || '✓ Copied to clipboard';
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2500);
     }
@@ -812,27 +808,41 @@
         c.classList.remove('selected-trouble', 'selected-install'));
       cell.classList.add(`selected-${currentMode}`);
       selectedDate = dateObj;
+      // Reset time selection when date changes
+      selectedTime = null;
+      document.querySelectorAll('.time-btn').forEach(b =>
+        b.classList.remove('selected-trouble', 'selected-install'));
       updateConfirmBtn();
     }
 
     function buildTimeGrid() {
       const grid = document.getElementById('timeGrid');
       grid.innerHTML = '';
+
+      // All Day option — only for trouble truck rolls
+      if (currentMode === 'trouble') {
+        const allDay = document.createElement('button');
+        allDay.className = 'time-btn all-day-btn';
+        allDay.textContent = '☀ All Day';
+        allDay.addEventListener('click', () => selectTime(allDay, 'All Day'));
+        grid.appendChild(allDay);
+      }
+
       const times = currentMode === 'trouble' ? TROUBLE_TIMES : INSTALL_TIMES;
       times.forEach(t => {
         const btn = document.createElement('button');
         btn.className = 'time-btn';
-        btn.textContent = t;
-        btn.addEventListener('click', () => selectTime(btn, t));
+        btn.textContent = t.full;
+        btn.addEventListener('click', () => selectTime(btn, t.label));
         grid.appendChild(btn);
       });
     }
 
-    function selectTime(btn, time) {
+    function selectTime(btn, timeLabel) {
       document.querySelectorAll('.time-btn').forEach(b =>
         b.classList.remove('selected-trouble', 'selected-install'));
       btn.classList.add(`selected-${currentMode}`);
-      selectedTime = time;
+      selectedTime = timeLabel;
       updateConfirmBtn();
     }
 
@@ -841,7 +851,7 @@
     }
 
     function openModal(mode) {
-      currentMode = mode;
+      currentMode  = mode;
       selectedDate = null;
       selectedTime = null;
       const title = document.getElementById('modalTitle');
@@ -866,18 +876,30 @@
 
     function confirmSchedule() {
       if (!selectedDate || !selectedTime) return;
-      const typeLabel = currentMode === 'trouble' ? 'Trouble Truck Roll' : 'Install Truck Roll';
-      const dateStr = `${DAYS[selectedDate.getDay()]}, ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
-      const name  = document.getElementById('f-name').value.trim();
+
+      const typeLabel = currentMode === 'trouble' ? 'Trouble TR' : 'Install TR';
+
+      // Date in M/D format
+      const month = selectedDate.getMonth() + 1;
+      const day   = selectedDate.getDate();
+      const dateStr = `${month}/${day}`;
+
       const phone = document.getElementById('f-phone').value.trim();
+      const name  = document.getElementById('f-name').value.trim();
       const notes = document.getElementById('modalNotes').value.trim();
-      let lines = [`[${typeLabel}]`, `Date: ${dateStr}`, `Time: ${selectedTime}`];
-      if (name)  lines.push(`Name: ${name}`);
-      if (phone) lines.push(`Phone: ${phone}`);
-      if (notes) lines.push(`Notes: ${notes}`);
+
+      // Build flat single-line format: TYPE 5/13 8-10am (111) 111-1111 John issue details
+      const parts = [typeLabel, dateStr, selectedTime];
+      if (phone) parts.push(phone);
+      if (name)  parts.push(name);
+      if (notes) parts.push(notes);
+
+      const line = parts.join(' ');
+
       const existing = document.getElementById('f-resolution').value.trim();
       document.getElementById('f-resolution').value =
-        existing ? existing + '\n\n' + lines.join('\n') : lines.join('\n');
+        existing ? existing + '\n' + line : line;
+
       closeModal();
     }
 
