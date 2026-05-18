@@ -23,10 +23,8 @@ body{
   display:grid;grid-template-rows:auto auto 1fr auto;grid-template-columns:1fr;
   height:100vh;padding:10px 12px 8px;gap:6px;font-size:clamp(11px,1.1vw,14px);
 }
-header{
-  display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);padding-bottom:8px;gap:8px;flex-wrap:wrap;
-}
+header{display:flex;flex-direction:column;border-bottom:1px solid var(--border);padding-bottom:0;}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-bottom:8px;}
 .header-left h1{font-family:var(--mono);font-size:clamp(10px,1vw,13px);font-weight:700;letter-spacing:.12em;color:var(--accent-light);text-transform:uppercase}
 .header-left p{font-size:clamp(9px,.85vw,11px);color:var(--text-muted);margin-top:2px;font-family:var(--mono);letter-spacing:.04em}
 .header-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -39,7 +37,7 @@ header{
 .kb-help-btn:hover,.kb-help-btn.active{border-color:var(--accent);color:var(--accent-light);background:var(--accent-dim)}
 .kb-help-btn svg{width:11px;height:11px}
 .kb-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .25s ease,margin .25s ease;margin:0}
-.kb-panel.open{max-height:200px;opacity:1;border-top:2px solid var(--accent)}
+.kb-panel.open{max-height:200px;opacity:1;border-top:2px solid var(--accent);margin-top:8px;}
 .kb-panel-inner{padding:12px 16px}
 .kb-panel-title{font-family:var(--mono);font-size:clamp(9px,.75vw,10px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
 .kb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:7px 20px}
@@ -162,35 +160,36 @@ input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
 <body>
 
 <header>
-  <div class="header-left">
-    <h1>Notation Form</h1>
-    <p>// Agent call log &amp; documentation</p>
+  <div class="header-top">
+    <div class="header-left">
+      <h1>Notation Form</h1>
+      <p>// Agent call log &amp; documentation</p>
+    </div>
+    <div class="header-right">
+      <div class="autosave-badge" id="autosaveBadge"><span class="dot"></span><span id="autosaveText">Auto-save on</span></div>
+      <button class="kb-help-btn" id="kbHelpBtn" onclick="toggleKbPanel()" aria-expanded="false" aria-controls="kbPanel" title="Show keyboard shortcuts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+        Shortcuts
+      </button>
+      <div class="timestamp" id="clock" aria-live="off">--</div>
+    </div>
   </div>
-  <div class="header-right">
-    <div class="autosave-badge" id="autosaveBadge"><span class="dot"></span><span id="autosaveText">Auto-save on</span></div>
-    <button class="kb-help-btn" id="kbHelpBtn" onclick="toggleKbPanel()" aria-expanded="false" aria-controls="kbPanel" title="Show keyboard shortcuts">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
-      Shortcuts
-    </button>
-    <div class="timestamp" id="clock" aria-live="off">--</div>
+  <div class="kb-panel" id="kbPanel" role="region" aria-label="Keyboard shortcuts reference">
+    <div class="kb-panel-inner">
+      <div class="kb-panel-title">Keyboard Shortcuts</div>
+      <div class="kb-grid">
+        <div class="kb-row"><span class="kb-desc">Copy notes</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Enter</span></span></div>
+        <div class="kb-row"><span class="kb-desc">Clear form</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Shift</span><span class="kb-plus">+</span><span class="kb-key">Del</span></span></div>
+        <div class="kb-row"><span class="kb-desc">Schedule trouble truck roll</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">T</span></span></div>
+        <div class="kb-row"><span class="kb-desc">Schedule install truck roll</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">I</span></span></div>
+        <div class="kb-row"><span class="kb-desc">Restore after clear</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Z</span></span></div>
+        <div class="kb-row"><span class="kb-desc">Toggle this panel</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">/</span></span></div>
+      </div>
+    </div>
   </div>
 </header>
 
 <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
-
-<div class="kb-panel" id="kbPanel" role="region" aria-label="Keyboard shortcuts reference">
-  <div class="kb-panel-inner">
-    <div class="kb-panel-title">Keyboard Shortcuts</div>
-    <div class="kb-grid">
-      <div class="kb-row"><span class="kb-desc">Copy notes</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Enter</span></span></div>
-      <div class="kb-row"><span class="kb-desc">Clear form</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Shift</span><span class="kb-plus">+</span><span class="kb-key">Del</span></span></div>
-      <div class="kb-row"><span class="kb-desc">Schedule trouble truck roll</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">T</span></span></div>
-      <div class="kb-row"><span class="kb-desc">Schedule install truck roll</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">I</span></span></div>
-      <div class="kb-row"><span class="kb-desc">Restore after clear</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Z</span></span></div>
-      <div class="kb-row"><span class="kb-desc">Toggle this panel</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">/</span></span></div>
-    </div>
-  </div>
-</div>
 
 <div class="form-card" id="notationForm">
   <div class="form-row">
@@ -217,7 +216,7 @@ input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
     <div class="row-input">
       <div class="account-wrap">
         <span class="account-prefix" aria-hidden="true">C</span>
-        <input type="text" id="f-account" placeholder="00000000" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="Account number"/>
+        <input type="text" id="f-account" placeholder="00000000" inputmode="numeric" autocomplete="off" aria-label="Account number"/>
         <div class="acct-validator" id="acctValidator" aria-hidden="true">
           <div class="acct-pip-row" id="acctPips"></div>
           <div class="acct-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
@@ -377,6 +376,13 @@ function updateAcctValidator(val){
   v.classList.toggle('complete',complete);
   pips.forEach((p,i)=>{p.className='acct-pip'+(complete?' complete':i<val.length?' filled':'');});
 }
+document.getElementById('f-account').addEventListener('paste',function(e){
+  e.preventDefault();
+  const pasted=(e.clipboardData||window.clipboardData).getData('text');
+  const digits=pasted.replace(/\D/g,'').slice(0,8);
+  this.value=digits;
+  updateAcctValidator(this.value);updateProgress();scheduleAutosave();
+});
 document.getElementById('f-account').addEventListener('input',function(){
   this.value=this.value.replace(/\D/g,'').slice(0,8);
   updateAcctValidator(this.value);updateProgress();scheduleAutosave();
