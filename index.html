@@ -1,1267 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
- <title>Agent Notation Form</title>
- <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
- <style>
-   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-   :root {
-     --bg:          #07080e;
-     --surface:     #0c1018;
-     --surface2:    #141c2a;
-     --surface3:    #1a2438;
-     --input-bg:    #18202f;
-     --input-focus: #1d2840;
-     --border:      #1c2c44;
-     --border2:     #243450;
-
-     --accent:        #0392cf;
-     --accent-deep:   #0278ab;
-     --accent-light:  #2aaddf;
-     --accent-xlight: #5cc4ea;
-     --accent-dim:    rgba(3,146,207,0.12);
-     --accent-glow:   rgba(3,146,207,0.25);
-
-     --green:  #2ec98a;
-     --red:    #e05a5a;
-     --orange: #f59e2e;
-     --purple: #8b7cf8;
-     --danger: #e05a5a;
-
-     --text:       #dce8f2;
-     --text-muted: #4a6078;
-     --label-bg:   #0e1620;
-     --label-text: #527090;
-     --label-w:    124px;
-
-     --mono: 'Space Mono', monospace;
-     --sans: 'DM Sans', sans-serif;
-   }
-
-   @keyframes fadeSlideIn {
-     from { opacity: 0; transform: translateY(14px); }
-     to   { opacity: 1; transform: translateY(0); }
-   }
-   @keyframes fadeIn {
-     from { opacity: 0; }
-     to   { opacity: 1; }
-   }
-   @keyframes pulse-once {
-     0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
-     60%  { box-shadow: 0 0 0 6px transparent; }
-     100% { box-shadow: 0 0 0 0 transparent; }
-   }
-   @keyframes progress-fill {
-     from { width: 0; }
-   }
-
-   body {
-     background: var(--bg);
-     background-image: radial-gradient(ellipse 80% 35% at 50% -5%, rgba(3,146,207,0.07) 0%, transparent 65%);
-     font-family: var(--sans);
-     color: var(--text);
-     min-height: 100vh;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     padding: 32px 16px 80px;
-     min-width: 320px;
-     animation: fadeIn 0.25s ease;
-   }
-
-   /* ── Progress bar ── */
-   .progress-track {
-     width: 100%;
-     max-width: 780px;
-     height: 3px;
-     background: var(--border);
-     border-radius: 3px;
-     margin-bottom: 14px;
-     overflow: hidden;
-     animation: fadeSlideIn 0.3s ease both;
-   }
-   .progress-fill {
-     height: 100%;
-     background: linear-gradient(90deg, var(--accent-deep), var(--accent-light));
-     border-radius: 3px;
-     transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-     width: 0%;
-   }
-
-   header {
-     width: 100%;
-     max-width: 780px;
-     margin-bottom: 12px;
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     border-bottom: 1px solid var(--border);
-     padding-bottom: 14px;
-     flex-wrap: wrap;
-     gap: 10px;
-     position: relative;
-     animation: fadeSlideIn 0.35s ease both;
-   }
-   header::after {
-     content: '';
-     position: absolute;
-     bottom: -1px; left: 0;
-     width: 56px; height: 2px;
-     background: var(--accent);
-     border-radius: 2px;
-   }
-   .header-left h1 {
-     font-family: var(--mono);
-     font-size: 1.0rem;
-     font-weight: 700;
-     letter-spacing: 0.12em;
-     color: var(--accent-light);
-     text-transform: uppercase;
-   }
-   .header-left p {
-     font-size: 0.67rem;
-     color: var(--text-muted);
-     margin-top: 4px;
-     font-family: var(--mono);
-     letter-spacing: 0.04em;
-   }
-   .header-right {
-     display: flex;
-     align-items: center;
-     gap: 7px;
-     flex-wrap: wrap;
-   }
-   .timestamp {
-     font-family: var(--mono);
-     font-size: 0.63rem;
-     color: var(--text-muted);
-     white-space: nowrap;
-     background: var(--surface);
-     border: 1px solid var(--border);
-     padding: 5px 12px;
-     border-radius: 20px;
-   }
-
-   /* ── Auto-save indicator ── */
-   .autosave-badge {
-     font-family: var(--mono);
-     font-size: 0.6rem;
-     color: var(--text-muted);
-     background: var(--surface);
-     border: 1px solid var(--border);
-     padding: 5px 12px;
-     border-radius: 20px;
-     display: flex;
-     align-items: center;
-     gap: 6px;
-     transition: color 0.3s, border-color 0.3s;
-     white-space: nowrap;
-   }
-   .autosave-badge .dot {
-     width: 5px; height: 5px;
-     border-radius: 50%;
-     background: var(--text-muted);
-     transition: background 0.3s;
-     flex-shrink: 0;
-   }
-   .autosave-badge.saving { color: var(--orange); border-color: rgba(245,158,46,0.3); }
-   .autosave-badge.saving .dot { background: var(--orange); }
-   .autosave-badge.saved  { color: var(--green); border-color: rgba(46,201,138,0.3); }
-   .autosave-badge.saved .dot  { background: var(--green); }
-
-   /* ── Keyboard help button ── */
-   .kb-help-btn {
-     background: var(--surface);
-     border: 1px solid var(--border);
-     color: var(--text-muted);
-     font-family: var(--mono);
-     font-size: 0.6rem;
-     font-weight: 700;
-     padding: 5px 12px;
-     border-radius: 20px;
-     cursor: pointer;
-     display: flex;
-     align-items: center;
-     gap: 5px;
-     transition: border-color 0.15s, color 0.15s, background 0.15s;
-     white-space: nowrap;
-     letter-spacing: 0.04em;
-   }
-   .kb-help-btn:hover,
-   .kb-help-btn.active { border-color: var(--accent); color: var(--accent-light); background: var(--accent-dim); }
-   .kb-help-btn svg { width: 11px; height: 11px; }
-
-   /* ── Keyboard shortcuts panel ── */
-   .kb-panel {
-     width: 100%;
-     max-width: 780px;
-     background: var(--surface);
-     border: 0px solid var(--border);
-     border-top-width: 0;
-     border-radius: 10px;
-     overflow: hidden;
-     max-height: 0;
-     opacity: 0;
-     margin-bottom: 0;
-     transition: max-height 0.3s ease, opacity 0.25s ease, margin-bottom 0.25s ease, border-width 0.01s ease;
-   }
-   .kb-panel.open {
-     max-height: 280px;
-     opacity: 1;
-     margin-bottom: 14px;
-     border-width: 1px;
-     border-top: 2px solid var(--accent);
-   }
-   .kb-panel-inner { padding: 16px 20px; }
-   .kb-panel-title {
-     font-family: var(--mono);
-     font-size: 0.58rem;
-     font-weight: 700;
-     letter-spacing: 0.12em;
-     text-transform: uppercase;
-     color: var(--text-muted);
-     margin-bottom: 14px;
-   }
-   .kb-grid {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-     gap: 9px 24px;
-   }
-   .kb-row {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     gap: 12px;
-   }
-   .kb-desc { font-size: 0.82rem; color: var(--text-muted); font-family: var(--sans); }
-   .kb-keys { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
-   .kb-key {
-     font-family: var(--mono);
-     font-size: 0.58rem;
-     font-weight: 700;
-     color: var(--text);
-     background: var(--surface2);
-     border: 1px solid var(--border2);
-     border-bottom-width: 2px;
-     border-radius: 4px;
-     padding: 2px 7px;
-     white-space: nowrap;
-   }
-   .kb-plus { font-size: 0.62rem; color: var(--text-muted); }
-
-   /* ── Form card ── */
-   .form-card {
-     width: 100%;
-     max-width: 780px;
-     background: var(--surface);
-     background-image: radial-gradient(circle, rgba(255,255,255,0.028) 1px, transparent 1px);
-     background-size: 22px 22px;
-     border: 1px solid rgba(28,44,68,0.9);
-     border-radius: 16px;
-     overflow: hidden;
-     box-shadow: 0 12px 56px rgba(0,0,0,0.5), 0 0 0 1px rgba(3,146,207,0.07);
-     animation: fadeSlideIn 0.4s ease 0.06s both;
-   }
-
-   .form-row {
-     display: flex;
-     align-items: stretch;
-     border-bottom: 1px solid rgba(30,46,70,0.6);
-     transition: background 0.25s;
-     position: relative;
-   }
-   .form-row:last-child { border-bottom: none; }
-   .form-row::before {
-     content: '';
-     position: absolute;
-     left: 0; top: 0; bottom: 0;
-     width: 2px;
-     background: linear-gradient(180deg, var(--accent-light), var(--accent-deep));
-     opacity: 0;
-     transition: opacity 0.25s;
-     z-index: 1;
-   }
-   .form-row:focus-within::before { opacity: 1; }
-   .form-row:focus-within { background: rgba(3,146,207,0.02); }
-
-   .row-label {
-     width: var(--label-w);
-     min-width: var(--label-w);
-     background: linear-gradient(90deg, var(--label-bg) 60%, transparent);
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     padding: 0 14px 0 10px;
-     border-right: 1px solid rgba(30,46,70,0.7);
-     user-select: none;
-     flex-shrink: 0;
-     transition: background 0.25s, border-color 0.25s;
-   }
-   .row-label span {
-     font-family: var(--mono);
-     font-size: 0.58rem;
-     font-weight: 700;
-     color: var(--label-text);
-     letter-spacing: 0.1em;
-     text-transform: uppercase;
-     white-space: nowrap;
-     transition: color 0.25s;
-     text-align: center;
-   }
-   .form-row:focus-within .row-label {
-     background: linear-gradient(90deg, rgba(3,146,207,0.1) 60%, transparent);
-     border-right-color: rgba(3,146,207,0.25);
-   }
-   .form-row:focus-within .row-label span { color: var(--accent-xlight); }
-
-   .row-input { flex: 1; min-width: 0; overflow: hidden; position: relative; }
-
-   .row-input input,
-   .row-input textarea {
-     width: 100%;
-     background: var(--input-bg);
-     border: none;
-     outline: none;
-     color: var(--text);
-     font-family: var(--sans);
-     font-size: 0.92rem;
-     font-weight: 300;
-     padding: 14px 16px;
-     resize: none;
-     line-height: 1.55;
-     transition: background 0.2s;
-   }
-   .row-input input:focus,
-   .row-input textarea:focus {
-     background: var(--input-focus);
-   }
-   .row-input textarea { min-height: 88px; }
-   .row-input textarea.tall { min-height: 100px; }
-   input::placeholder, textarea::placeholder { color: #253748; font-weight: 300; }
-
-   /* tall label rows — keep label vertically centered */
-   .form-row .row-label.top { align-items: flex-start; padding-top: 14px; }
-   .char-counter-wrap { position: relative; width: 100%; }
-   .char-counter {
-     position: absolute;
-     bottom: 8px;
-     right: 12px;
-     font-family: var(--mono);
-     font-size: 0.56rem;
-     color: #253748;
-     pointer-events: none;
-     transition: color 0.2s;
-     user-select: none;
-   }
-   .char-counter.warn  { color: var(--orange); }
-   .char-counter.limit { color: var(--red); }
-
-   /* ── Address / Account ── */
-   .addr-wrap { display: flex; align-items: center; width: 100%; }
-   .addr-wrap input { flex: 1; min-width: 0; }
-   .account-wrap { display: flex; align-items: center; width: 100%; }
-   .account-prefix {
-     font-family: var(--mono);
-     font-size: 0.92rem;
-     font-weight: 700;
-     color: var(--accent);
-     padding: 0 2px 0 16px;
-     display: flex;
-     align-items: center;
-     user-select: none;
-     flex-shrink: 0;
-     line-height: 1;
-   }
-   .account-wrap input { padding-left: 3px; letter-spacing: 0.06em; font-family: var(--mono); font-size: 0.88rem; font-weight: 400; }
-
-   /* ── Account validator ── */
-   .acct-validator {
-     display: flex;
-     align-items: center;
-     flex-shrink: 0;
-     padding: 0 6px 0 2px;
-     opacity: 0;
-     transition: opacity 0.2s;
-   }
-   .acct-validator.visible { opacity: 1; }
-   .acct-validator .acct-pip-row {
-     display: flex;
-     gap: 2px;
-     align-items: center;
-   }
-   .acct-pip {
-     width: 5px;
-     height: 5px;
-     border-radius: 50%;
-     background: var(--border2);
-     transition: background 0.15s, transform 0.15s;
-   }
-   .acct-pip.filled { background: var(--accent); transform: scale(1.15); }
-   .acct-pip.complete { background: var(--green); transform: scale(1.2); }
-   .acct-check {
-     display: none;
-     color: var(--green);
-     margin-left: 4px;
-   }
-   .acct-check svg { width: 14px; height: 14px; display: block; }
-   .acct-validator.complete .acct-check { display: flex; }
-   .acct-validator.complete .acct-pip-row { display: none; }
-
-   .inline-copy-btn {
-     background: none;
-     border: none;
-     cursor: pointer;
-     color: var(--text-muted);
-     padding: 0 11px;
-     display: flex;
-     align-items: center;
-     flex-shrink: 0;
-     transition: color 0.15s, transform 0.1s;
-   }
-   .inline-copy-btn:hover { color: var(--accent); }
-   .inline-copy-btn:active { transform: scale(0.88); }
-   .inline-copy-btn.copied { color: var(--green); }
-   .inline-copy-btn svg { width: 13px; height: 13px; }
-
-   /* ── Verification buttons ── */
-   .verif-wrapper { display: flex; flex-direction: column; width: 100%; }
-   .verif-btn-row { display: flex; gap: 6px; padding: 10px 12px 6px; flex-wrap: wrap; }
-   .verif-btn {
-     padding: 5px 13px;
-     border-radius: 20px;
-     font-family: var(--sans);
-     font-size: 0.72rem;
-     font-weight: 500;
-     letter-spacing: 0.01em;
-     cursor: pointer;
-     border: 1px solid;
-     transition: all 0.15s;
-     white-space: nowrap;
-   }
-   .verif-btn:active { transform: scale(0.94); }
-   .verif-btn.green { background: rgba(46,201,138,0.07); border-color: rgba(46,201,138,0.28); color: var(--green); }
-   .verif-btn.green:hover  { background: rgba(46,201,138,0.13); border-color: var(--green); }
-   .verif-btn.green.active { background: rgba(46,201,138,0.18); border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
-   .verif-btn.red { background: rgba(224,90,90,0.07); border-color: rgba(224,90,90,0.28); color: var(--red); }
-   .verif-btn.red:hover  { background: rgba(224,90,90,0.13); border-color: var(--red); }
-   .verif-btn.red.active { background: rgba(224,90,90,0.18); border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
-
-   /* ── Truck buttons ── */
-   .resolution-wrapper { display: flex; flex-direction: column; width: 100%; }
-   .truck-btn-row { display: flex; gap: 7px; padding: 10px 12px 6px; flex-wrap: wrap; }
-   .truck-btn {
-     display: flex; align-items: center; gap: 6px;
-     padding: 6px 14px; border-radius: 20px;
-     font-family: var(--sans);
-     font-size: 0.76rem; font-weight: 500;
-     letter-spacing: 0.01em;
-     cursor: pointer; border: 1px solid;
-     transition: all 0.15s; white-space: nowrap;
-   }
-   .truck-btn:active { transform: scale(0.95); }
-   .truck-btn-trouble { background: rgba(245,158,46,0.07); border-color: rgba(245,158,46,0.3); color: var(--orange); }
-   .truck-btn-trouble:hover { background: rgba(245,158,46,0.15); border-color: var(--orange); }
-   .truck-btn-install { background: rgba(139,124,248,0.07); border-color: rgba(139,124,248,0.3); color: var(--purple); }
-   .truck-btn-install:hover { background: rgba(139,124,248,0.15); border-color: var(--purple); }
-   .truck-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
-
-   /* ── Action bar ── */
-   .action-bar {
-     width: 100%; max-width: 780px;
-     margin-top: 14px;
-     display: flex; align-items: center;
-     gap: 8px; justify-content: flex-end;
-     animation: fadeSlideIn 0.4s ease 0.12s both;
-   }
-   .shortcut-hint {
-     font-family: var(--mono);
-     font-size: 0.58rem; color: var(--text-muted);
-     display: flex; gap: 14px; margin-right: auto; flex-wrap: wrap;
-     align-items: center;
-   }
-   .shortcut-hint span { display: flex; align-items: center; gap: 4px; }
-   .s-key {
-     background: var(--surface2);
-     border: 1px solid var(--border2);
-     border-bottom-width: 2px; border-radius: 3px;
-     padding: 1px 5px; font-size: 0.56rem; font-weight: 700;
-     color: var(--text-muted); font-family: var(--mono);
-   }
-
-   /* ── Fields filled counter ── */
-   .fields-pill {
-     font-family: var(--mono);
-     font-size: 0.58rem;
-     color: var(--text-muted);
-     background: var(--surface2);
-     border: 1px solid var(--border2);
-     padding: 4px 11px;
-     border-radius: 20px;
-     white-space: nowrap;
-     transition: color 0.3s, border-color 0.3s, background 0.3s;
-   }
-   .fields-pill.complete { color: var(--green); border-color: rgba(46,201,138,0.3); background: rgba(46,201,138,0.06); }
-
-   .btn {
-     display: flex; align-items: center; gap: 6px;
-     padding: 9px 18px; border-radius: 20px;
-     font-family: var(--sans);
-     font-size: 0.78rem; font-weight: 500;
-     letter-spacing: 0.01em;
-     cursor: pointer; border: 1px solid transparent;
-     transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0;
-   }
-   .btn:active { transform: scale(0.96); }
-   .btn-clear { background: transparent; border-color: var(--border2); color: var(--text-muted); }
-   .btn-clear:hover { border-color: var(--danger); color: var(--danger); background: rgba(224,90,90,0.06); }
-   .btn-copy { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 2px 16px rgba(3,146,207,0.35); }
-   .btn-copy:hover { background: var(--accent-deep); border-color: var(--accent-deep); box-shadow: 0 2px 22px rgba(3,146,207,0.5); }
-   .btn-copy.success { background: var(--green); border-color: var(--green); box-shadow: none; animation: pulse-once 0.5s ease; }
-   .btn svg { width: 12px; height: 12px; flex-shrink: 0; }
-
-   /* ── Toast ── */
-   .toast {
-     position: fixed; bottom: 28px; right: 28px;
-     background: var(--surface2); border: 1px solid var(--accent);
-     color: var(--accent-xlight);
-     font-family: 'IBM Plex Mono', monospace;
-     font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
-     padding: 10px 18px; border-radius: 8px;
-     opacity: 0; transform: translateY(10px);
-     transition: opacity 0.2s, transform 0.2s;
-     pointer-events: none; z-index: 999;
-     box-shadow: 0 4px 20px rgba(3,146,207,0.18);
-   }
-   .toast.show { opacity: 1; transform: translateY(0); }
-
-   /* ── Undo bar ── */
-   .undo-bar {
-     position: fixed; bottom: 28px; left: 50%;
-     transform: translateX(-50%) translateY(80px);
-     background: var(--surface2); border: 1px solid var(--border2);
-     border-radius: 10px; display: flex; align-items: center;
-     gap: 14px; padding: 10px 18px;
-     font-family: 'IBM Plex Mono', monospace;
-     font-size: 0.71rem; color: var(--text-muted);
-     transition: transform 0.25s ease; z-index: 998;
-     white-space: nowrap; box-shadow: 0 4px 28px rgba(0,0,0,0.5);
-   }
-   .undo-bar.show { transform: translateX(-50%) translateY(0); }
-   .undo-bar-timer { font-weight: 600; color: var(--danger); min-width: 20px; }
-   .undo-btn {
-     background: var(--danger); color: #fff; border: none;
-     border-radius: 5px; padding: 5px 14px;
-     font-family: 'IBM Plex Mono', monospace;
-     font-size: 0.7rem; font-weight: 600;
-     letter-spacing: 0.04em; text-transform: uppercase;
-     cursor: pointer; transition: background 0.15s;
-   }
-   .undo-btn:hover { background: #c84040; }
-
-   /* ── Modal ── */
-   .modal-overlay {
-     position: fixed; inset: 0; background: rgba(4,6,14,0.88);
-     display: flex; align-items: center; justify-content: center;
-     z-index: 1000; opacity: 0; pointer-events: none;
-     transition: opacity 0.2s; padding: 16px;
-   }
-   .modal-overlay.open { opacity: 1; pointer-events: all; }
-   .modal {
-     background: var(--surface); border: 1px solid var(--border2);
-     border-radius: 14px; width: 100%; max-width: 560px;
-     max-height: 90vh; overflow-y: auto;
-     transform: translateY(14px) scale(0.98);
-     transition: transform 0.22s ease;
-     box-shadow: 0 24px 60px rgba(0,0,0,0.65);
-   }
-   .modal-overlay.open .modal { transform: translateY(0) scale(1); }
-   .modal-header {
-     display: flex; align-items: center; justify-content: space-between;
-     padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
-     position: sticky; top: 0; background: var(--surface); z-index: 1;
-   }
-   .modal-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.79rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-   .modal-title.trouble { color: var(--orange); }
-   .modal-title.install { color: var(--purple); }
-   .modal-close {
-     background: none; border: 1px solid var(--border);
-     color: var(--text-muted); cursor: pointer;
-     font-size: 0.9rem; line-height: 1; padding: 4px 8px;
-     border-radius: 5px; transition: all 0.15s;
-   }
-   .modal-close:hover { color: var(--text); border-color: var(--border2); }
-   .modal-body { padding: 18px 20px; }
-   .modal-section-label {
-     font-family: 'IBM Plex Mono', monospace; font-size: 0.61rem;
-     font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-     color: var(--text-muted); margin-bottom: 10px;
-   }
-   .date-scroll {
-     display: flex; gap: 5px; overflow-x: auto;
-     padding-bottom: 8px; margin-bottom: 18px;
-     scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
-   }
-   .date-scroll::-webkit-scrollbar { height: 3px; }
-   .date-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-   .date-cell {
-     display: flex; flex-direction: column; align-items: center;
-     padding: 7px 9px; border-radius: 7px; border: 1px solid var(--border);
-     cursor: pointer; transition: all 0.12s;
-     background: var(--surface2); min-width: 50px; flex-shrink: 0;
-   }
-   .date-cell:hover { border-color: var(--accent); }
-   .date-cell.selected-trouble { border-color: var(--orange); background: rgba(245,158,46,0.1); }
-   .date-cell.selected-install { border-color: var(--purple); background: rgba(139,124,248,0.1); }
-   .date-cell .dow { font-family: 'IBM Plex Mono', monospace; font-size: 0.57rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-   .date-cell .day-num { font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem; font-weight: 600; color: var(--text); margin-top: 2px; }
-   .date-cell .month-abbr { font-size: 0.55rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; }
-   .date-cell.today .day-num { color: var(--accent-light); }
-   .date-cell.today .dow { color: var(--accent); }
-   .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 18px; }
-   .time-btn {
-     padding: 9px 10px; border-radius: 6px;
-     border: 1px solid var(--border); background: var(--surface2);
-     color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
-     font-size: 0.71rem; cursor: pointer; transition: all 0.12s; text-align: center;
-   }
-   .time-btn:hover { border-color: var(--accent); color: var(--accent-light); }
-   .time-btn.selected-trouble { border-color: var(--orange); background: rgba(245,158,46,0.1); color: var(--orange); }
-   .time-btn.selected-install { border-color: var(--purple); background: rgba(139,124,248,0.1); color: var(--purple); }
-   .time-btn.all-day-btn { grid-column: 1 / -1; font-weight: 600; letter-spacing: 0.06em; }
-   .modal-notes {
-     width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-     border-radius: 7px; outline: none; color: var(--text);
-     font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem;
-     padding: 10px 13px; resize: vertical; min-height: 68px;
-     line-height: 1.5; margin-bottom: 18px; transition: border-color 0.15s, background 0.15s;
-   }
-   .modal-notes:focus { border-color: var(--accent); background: var(--input-focus); }
-   .modal-confirm {
-     width: 100%; padding: 11px; border-radius: 8px; border: none;
-     font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem;
-     font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-     cursor: pointer; transition: all 0.15s;
-   }
-   .modal-confirm:active { transform: scale(0.98); }
-   .modal-confirm.trouble { background: var(--orange); color: #fff; }
-   .modal-confirm.trouble:hover { background: #d8870e; }
-   .modal-confirm.install { background: var(--purple); color: #fff; }
-   .modal-confirm.install:hover { background: #7264d8; }
-   .modal-confirm:disabled { opacity: 0.28; cursor: not-allowed; }
- </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Agent Notation Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080e;--surface:#0c1018;--surface2:#141c2a;--surface3:#1a2438;
+  --input-bg:#18202f;--input-focus:#1d2840;
+  --border:#1c2c44;--border2:#243450;
+  --accent:#0392cf;--accent-deep:#0278ab;--accent-light:#2aaddf;--accent-xlight:#5cc4ea;--accent-dim:rgba(3,146,207,0.12);
+  --green:#2ec98a;--red:#e05a5a;--orange:#f59e2e;--purple:#8b7cf8;
+  --text:#dce8f2;--text-muted:#4a6078;
+  --label-text:#527090;
+  --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);font-family:var(--sans);color:var(--text);
+  display:grid;grid-template-rows:auto auto 1fr auto;grid-template-columns:1fr;
+  height:100vh;padding:10px 12px 8px;gap:6px;font-size:clamp(11px,1.1vw,14px);
+}
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);padding-bottom:8px;gap:8px;flex-wrap:wrap;
+}
+.header-left h1{font-family:var(--mono);font-size:clamp(10px,1vw,13px);font-weight:700;letter-spacing:.12em;color:var(--accent-light);text-transform:uppercase}
+.header-left p{font-size:clamp(9px,.85vw,11px);color:var(--text-muted);margin-top:2px;font-family:var(--mono);letter-spacing:.04em}
+.header-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.timestamp{font-family:var(--mono);font-size:clamp(9px,.8vw,11px);color:var(--text-muted);white-space:nowrap;background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.autosave-badge{font-family:var(--mono);font-size:clamp(9px,.8vw,10px);color:var(--text-muted);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:color .2s,border-color .2s}
+.autosave-badge .dot{width:5px;height:5px;border-radius:50%;background:var(--text-muted);transition:background .2s;flex-shrink:0}
+.autosave-badge.saving{color:var(--orange);border-color:rgba(245,158,46,.3)}.autosave-badge.saving .dot{background:var(--orange)}
+.autosave-badge.saved{color:var(--green);border-color:rgba(46,201,138,.3)}.autosave-badge.saved .dot{background:var(--green)}
+.kb-help-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-family:var(--mono);font-size:clamp(9px,.8vw,10px);font-weight:700;padding:4px 10px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;letter-spacing:.04em;transition:border-color .15s,color .15s,background .15s}
+.kb-help-btn:hover,.kb-help-btn.active{border-color:var(--accent);color:var(--accent-light);background:var(--accent-dim)}
+.kb-help-btn svg{width:11px;height:11px}
+.kb-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .25s ease,margin .25s ease;margin:0}
+.kb-panel.open{max-height:200px;opacity:1;border-top:2px solid var(--accent)}
+.kb-panel-inner{padding:12px 16px}
+.kb-panel-title{font-family:var(--mono);font-size:clamp(9px,.75vw,10px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.kb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:7px 20px}
+.kb-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kb-desc{font-size:clamp(10px,.9vw,13px);color:var(--text-muted)}
+.kb-keys{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.kb-key{font-family:var(--mono);font-size:clamp(9px,.7vw,10px);font-weight:700;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-bottom-width:2px;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.kb-plus{font-size:clamp(9px,.7vw,11px);color:var(--text-muted)}
+.progress-track{height:2px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-deep),var(--accent-light));border-radius:2px;transition:width .35s cubic-bezier(.25,1,.5,1);width:0}
+.form-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  overflow:auto;display:flex;flex-direction:column;min-height:0;
+}
+.form-row{display:flex;align-items:stretch;border-bottom:1px solid rgba(30,46,70,.6);position:relative;flex-shrink:0}
+.form-row:last-child{border-bottom:none}
+.form-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent-light),var(--accent-deep));opacity:0;transition:opacity .2s;z-index:1}
+.form-row:focus-within::before{opacity:1}
+.form-row:focus-within{background:rgba(3,146,207,.02)}
+.form-row:focus-within .row-label{background:linear-gradient(90deg,rgba(3,146,207,.1) 60%,transparent);border-right-color:rgba(3,146,207,.25)}
+.form-row:focus-within .row-label span{color:var(--accent-xlight)}
+.row-label{width:108px;min-width:108px;background:linear-gradient(90deg,#0e1620 60%,transparent);display:flex;align-items:center;justify-content:center;padding:0 10px 0 8px;border-right:1px solid rgba(30,46,70,.7);user-select:none;flex-shrink:0;transition:background .2s,border-color .2s}
+.row-label span{font-family:var(--mono);font-size:clamp(8px,.75vw,10px);font-weight:700;color:var(--label-text);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;transition:color .2s;text-align:center}
+.row-input{flex:1;min-width:0;overflow:hidden;position:relative}
+.row-input input,.row-input textarea{width:100%;background:var(--input-bg);border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:clamp(11px,1vw,14px);font-weight:300;padding:8px 12px;resize:none;line-height:1.45;transition:background .15s}
+.row-input input:focus,.row-input textarea:focus{background:var(--input-focus)}
+.row-input textarea{min-height:52px;max-height:120px}
+input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
+.char-counter-wrap{position:relative;width:100%}
+.char-counter{position:absolute;bottom:5px;right:10px;font-family:var(--mono);font-size:clamp(8px,.7vw,10px);color:#253748;pointer-events:none;transition:color .2s;user-select:none}
+.char-counter.warn{color:var(--orange)}.char-counter.limit{color:var(--red)}
+.addr-wrap,.account-wrap{display:flex;align-items:center;width:100%}
+.addr-wrap input{flex:1;min-width:0}
+.account-prefix{font-family:var(--mono);font-size:clamp(11px,1vw,14px);font-weight:700;color:var(--accent);padding:0 2px 0 12px;display:flex;align-items:center;user-select:none;flex-shrink:0}
+.account-wrap input{padding-left:3px;letter-spacing:.06em;font-family:var(--mono);font-size:clamp(10px,.9vw,13px);font-weight:400}
+.acct-validator{display:flex;align-items:center;flex-shrink:0;padding:0 5px 0 2px;opacity:0;transition:opacity .2s}
+.acct-validator.visible{opacity:1}
+.acct-pip-row{display:flex;gap:2px;align-items:center}
+.acct-pip{width:4px;height:4px;border-radius:50%;background:var(--border2);transition:background .15s,transform .15s}
+.acct-pip.filled{background:var(--accent);transform:scale(1.15)}
+.acct-pip.complete{background:var(--green);transform:scale(1.2)}
+.acct-check{display:none;color:var(--green);margin-left:3px}
+.acct-check svg{width:13px;height:13px;display:block}
+.acct-validator.complete .acct-check{display:flex}
+.acct-validator.complete .acct-pip-row{display:none}
+.inline-copy-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0 9px;display:flex;align-items:center;flex-shrink:0;transition:color .15s}
+.inline-copy-btn:hover{color:var(--accent)}.inline-copy-btn.copied{color:var(--green)}
+.inline-copy-btn svg{width:12px;height:12px}
+.verif-wrapper,.resolution-wrapper{display:flex;flex-direction:column;width:100%}
+.verif-btn-row,.truck-btn-row{display:flex;gap:5px;padding:6px 10px 4px;flex-wrap:wrap}
+.verif-btn{padding:3px 11px;border-radius:20px;font-family:var(--sans);font-size:clamp(10px,.85vw,12px);font-weight:500;cursor:pointer;border:1px solid;transition:all .12s;white-space:nowrap}
+.verif-btn.green{background:rgba(46,201,138,.07);border-color:rgba(46,201,138,.28);color:var(--green)}
+.verif-btn.green:hover{background:rgba(46,201,138,.13);border-color:var(--green)}
+.verif-btn.green.active{background:rgba(46,201,138,.18);border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.verif-btn.red{background:rgba(224,90,90,.07);border-color:rgba(224,90,90,.28);color:var(--red)}
+.verif-btn.red:hover{background:rgba(224,90,90,.13);border-color:var(--red)}
+.verif-btn.red.active{background:rgba(224,90,90,.18);border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.truck-btn{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-family:var(--sans);font-size:clamp(10px,.85vw,12px);font-weight:500;cursor:pointer;border:1px solid;transition:all .12s;white-space:nowrap}
+.truck-btn-trouble{background:rgba(245,158,46,.07);border-color:rgba(245,158,46,.3);color:var(--orange)}
+.truck-btn-trouble:hover{background:rgba(245,158,46,.15);border-color:var(--orange)}
+.truck-btn-install{background:rgba(139,124,248,.07);border-color:rgba(139,124,248,.3);color:var(--purple)}
+.truck-btn-install:hover{background:rgba(139,124,248,.15);border-color:var(--purple)}
+.truck-btn svg{width:11px;height:11px;flex-shrink:0}
+.action-bar{display:flex;align-items:center;gap:7px;justify-content:flex-end;flex-shrink:0}
+.shortcut-hint{font-family:var(--mono);font-size:clamp(9px,.75vw,10px);color:var(--text-muted);display:flex;gap:12px;margin-right:auto;flex-wrap:wrap;align-items:center}
+.shortcut-hint span{display:flex;align-items:center;gap:3px}
+.s-key{background:var(--surface2);border:1px solid var(--border2);border-bottom-width:2px;border-radius:3px;padding:1px 4px;font-size:clamp(9px,.7vw,10px);font-weight:700;color:var(--text-muted);font-family:var(--mono)}
+.fields-pill{font-family:var(--mono);font-size:clamp(9px,.8vw,11px);color:var(--text-muted);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px;white-space:nowrap;transition:color .2s,border-color .2s,background .2s}
+.fields-pill.complete{color:var(--green);border-color:rgba(46,201,138,.3);background:rgba(46,201,138,.06)}
+.btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;font-family:var(--sans);font-size:clamp(10px,.9vw,13px);font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .12s;white-space:nowrap;flex-shrink:0}
+.btn:active{transform:scale(0.96)}
+.btn-clear{background:transparent;border-color:var(--border2);color:var(--text-muted)}
+.btn-clear:hover{border-color:var(--red);color:var(--red);background:rgba(224,90,90,.06)}
+.btn-copy{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-copy:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+.btn-copy.success{background:var(--green);border-color:var(--green)}
+.btn svg{width:11px;height:11px;flex-shrink:0}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--accent);color:var(--accent-xlight);font-family:var(--mono);font-size:clamp(10px,.9vw,12px);font-weight:600;letter-spacing:.04em;padding:8px 16px;border-radius:7px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+.undo-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--surface2);border:1px solid var(--border2);border-radius:9px;display:flex;align-items:center;gap:12px;padding:8px 16px;font-family:var(--mono);font-size:clamp(10px,.85vw,12px);color:var(--text-muted);transition:transform .22s ease;z-index:998;white-space:nowrap}
+.undo-bar.show{transform:translateX(-50%) translateY(0)}
+.undo-bar-timer{font-weight:600;color:var(--red);min-width:18px}
+.undo-btn{background:var(--red);color:#fff;border:none;border-radius:5px;padding:4px 12px;font-family:var(--mono);font-size:clamp(10px,.8vw,11px);font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .12s}
+.undo-btn:hover{background:#c84040}
+.modal-overlay{position:fixed;inset:0;background:rgba(4,6,14,.88);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s;padding:16px}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:translateY(12px) scale(.98);transition:transform .2s ease}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-title{font-family:var(--mono);font-size:clamp(10px,.9vw,13px);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.modal-title.trouble{color:var(--orange)}.modal-title.install{color:var(--purple)}
+.modal-close{background:none;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:.85rem;line-height:1;padding:3px 7px;border-radius:5px;transition:all .12s}
+.modal-close:hover{color:var(--text);border-color:var(--border2)}
+.modal-body{padding:14px 18px}
+.modal-section-label{font-family:var(--mono);font-size:clamp(9px,.75vw,10px);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.date-scroll{display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.date-scroll::-webkit-scrollbar{height:3px}.date-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.date-cell{display:flex;flex-direction:column;align-items:center;padding:6px 8px;border-radius:6px;border:1px solid var(--border);cursor:pointer;transition:all .1s;background:var(--surface2);min-width:46px;flex-shrink:0}
+.date-cell:hover{border-color:var(--accent)}
+.date-cell.selected-trouble{border-color:var(--orange);background:rgba(245,158,46,.1)}
+.date-cell.selected-install{border-color:var(--purple);background:rgba(139,124,248,.1)}
+.date-cell .dow{font-family:var(--mono);font-size:clamp(8px,.7vw,10px);color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em}
+.date-cell .day-num{font-family:var(--mono);font-size:clamp(12px,1.1vw,16px);font-weight:600;color:var(--text);margin-top:1px}
+.date-cell .month-abbr{font-size:clamp(8px,.65vw,9px);color:var(--text-muted);font-family:var(--mono)}
+.date-cell.today .day-num{color:var(--accent-light)}.date-cell.today .dow{color:var(--accent)}
+.time-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px}
+.time-btn{padding:7px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-family:var(--mono);font-size:clamp(10px,.85vw,12px);cursor:pointer;transition:all .1s;text-align:center}
+.time-btn:hover{border-color:var(--accent);color:var(--accent-light)}
+.time-btn.selected-trouble{border-color:var(--orange);background:rgba(245,158,46,.1);color:var(--orange)}
+.time-btn.selected-install{border-color:var(--purple);background:rgba(139,124,248,.1);color:var(--purple)}
+.time-btn.all-day-btn{grid-column:1/-1;font-weight:600;letter-spacing:.06em}
+.modal-notes{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;outline:none;color:var(--text);font-family:var(--sans);font-size:clamp(11px,1vw,13px);padding:8px 11px;resize:vertical;min-height:60px;line-height:1.5;margin-bottom:14px;transition:border-color .12s,background .12s}
+.modal-notes:focus{border-color:var(--accent);background:var(--input-focus)}
+.modal-confirm{width:100%;padding:9px;border-radius:7px;border:none;font-family:var(--mono);font-size:clamp(11px,.9vw,13px);font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .12s}
+.modal-confirm.trouble{background:var(--orange);color:#fff}.modal-confirm.trouble:hover{background:#d8870e}
+.modal-confirm.install{background:var(--purple);color:#fff}.modal-confirm.install:hover{background:#7264d8}
+.modal-confirm:disabled{opacity:.28;cursor:not-allowed}
+</style>
 </head>
 <body>
 
- <header>
-   <div class="header-left">
-     <h1>Notation Form</h1>
-     <p>// Agent call log &amp; documentation</p>
-   </div>
-   <div class="header-right">
-     <div class="autosave-badge" id="autosaveBadge">
-       <span class="dot"></span>
-       <span id="autosaveText">Auto-save on</span>
-     </div>
-     <button class="kb-help-btn" id="kbHelpBtn" onclick="toggleKbPanel()" aria-expanded="false" aria-controls="kbPanel" title="Show keyboard shortcuts">
-       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-         <rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/>
-       </svg>
-       Shortcuts
-     </button>
-     <div class="timestamp" id="clock" aria-live="off">--</div>
-   </div>
- </header>
+<header>
+  <div class="header-left">
+    <h1>Notation Form</h1>
+    <p>// Agent call log &amp; documentation</p>
+  </div>
+  <div class="header-right">
+    <div class="autosave-badge" id="autosaveBadge"><span class="dot"></span><span id="autosaveText">Auto-save on</span></div>
+    <button class="kb-help-btn" id="kbHelpBtn" onclick="toggleKbPanel()" aria-expanded="false" aria-controls="kbPanel" title="Show keyboard shortcuts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+      Shortcuts
+    </button>
+    <div class="timestamp" id="clock" aria-live="off">--</div>
+  </div>
+</header>
 
- <div class="progress-track" aria-hidden="true">
-   <div class="progress-fill" id="progressFill"></div>
- </div>
+<div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
 
- <div class="kb-panel" id="kbPanel" role="region" aria-label="Keyboard shortcuts reference">
-   <div class="kb-panel-inner">
-     <div class="kb-panel-title">Keyboard Shortcuts</div>
-     <div class="kb-grid">
-       <div class="kb-row">
-         <span class="kb-desc">Copy notes</span>
-         <span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Enter</span></span>
-       </div>
-       <div class="kb-row">
-         <span class="kb-desc">Clear form</span>
-         <span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Shift</span><span class="kb-plus">+</span><span class="kb-key">Del</span></span>
-       </div>
-       <div class="kb-row">
-         <span class="kb-desc">Schedule trouble truck roll</span>
-         <span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">T</span></span>
-       </div>
-       <div class="kb-row">
-         <span class="kb-desc">Schedule install truck roll</span>
-         <span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">I</span></span>
-       </div>
-       <div class="kb-row">
-         <span class="kb-desc">Restore after clear</span>
-         <span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Z</span></span>
-       </div>
-       <div class="kb-row">
-         <span class="kb-desc">Toggle this panel</span>
-         <span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">/</span></span>
-       </div>
-     </div>
-   </div>
- </div>
+<div class="kb-panel" id="kbPanel" role="region" aria-label="Keyboard shortcuts reference">
+  <div class="kb-panel-inner">
+    <div class="kb-panel-title">Keyboard Shortcuts</div>
+    <div class="kb-grid">
+      <div class="kb-row"><span class="kb-desc">Copy notes</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Enter</span></span></div>
+      <div class="kb-row"><span class="kb-desc">Clear form</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Shift</span><span class="kb-plus">+</span><span class="kb-key">Del</span></span></div>
+      <div class="kb-row"><span class="kb-desc">Schedule trouble truck roll</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">T</span></span></div>
+      <div class="kb-row"><span class="kb-desc">Schedule install truck roll</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">I</span></span></div>
+      <div class="kb-row"><span class="kb-desc">Restore after clear</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">Z</span></span></div>
+      <div class="kb-row"><span class="kb-desc">Toggle this panel</span><span class="kb-keys"><span class="kb-key">Ctrl</span><span class="kb-plus">+</span><span class="kb-key">/</span></span></div>
+    </div>
+  </div>
+</div>
 
- <div class="form-card" id="notationForm">
+<div class="form-card" id="notationForm">
+  <div class="form-row">
+    <div class="row-label"><span>Name</span></div>
+    <div class="row-input"><input type="text" id="f-name" placeholder="Customer full name" autocomplete="off"/></div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Address</span></div>
+    <div class="row-input">
+      <div class="addr-wrap">
+        <input type="text" id="f-address" placeholder="Street, city, state, ZIP" autocomplete="off"/>
+        <button class="inline-copy-btn" id="addrCopyBtn" onclick="copyAddress()" tabindex="-1" aria-label="Copy address">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Phone #</span></div>
+    <div class="row-input"><input type="tel" id="f-phone" placeholder="(000) 000-0000" inputmode="numeric" autocomplete="off"/></div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Account #</span></div>
+    <div class="row-input">
+      <div class="account-wrap">
+        <span class="account-prefix" aria-hidden="true">C</span>
+        <input type="text" id="f-account" placeholder="00000000" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="Account number"/>
+        <div class="acct-validator" id="acctValidator" aria-hidden="true">
+          <div class="acct-pip-row" id="acctPips"></div>
+          <div class="acct-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <button class="inline-copy-btn" id="acctCopyBtn" onclick="copyAccountNumber()" tabindex="-1" aria-label="Copy account number">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Issue</span></div>
+    <div class="row-input">
+      <div class="char-counter-wrap">
+        <textarea id="f-issue" placeholder="Describe the customer's issue..." oninput="updateCounter('f-issue','ctr-issue',300);updateProgress()"></textarea>
+        <span class="char-counter" id="ctr-issue"></span>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Troubleshooting</span></div>
+    <div class="row-input">
+      <div class="verif-wrapper">
+        <div class="verif-btn-row" role="group">
+          <button class="verif-btn green" tabindex="-1" onclick="toggleVerif(this,'Last 4 SSN')" aria-pressed="false">Last 4 SSN</button>
+          <button class="verif-btn green" tabindex="-1" onclick="toggleVerif(this,'Account #')" aria-pressed="false">Account #</button>
+          <button class="verif-btn red"   tabindex="-1" onclick="toggleVerif(this,'CPNI')" aria-pressed="false">CPNI</button>
+          <button class="verif-btn red"   tabindex="-1" onclick="toggleVerif(this,'Security Question')" aria-pressed="false">Security Question</button>
+        </div>
+        <div class="char-counter-wrap">
+          <textarea id="f-troubleshooting" placeholder="Steps taken to troubleshoot..." oninput="updateCounter('f-troubleshooting','ctr-trouble',500);updateProgress()"></textarea>
+          <span class="char-counter" id="ctr-trouble"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Resolution</span></div>
+    <div class="row-input">
+      <div class="resolution-wrapper">
+        <div class="truck-btn-row">
+          <button class="truck-btn truck-btn-trouble" tabindex="-1" onclick="openModal('trouble')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Trouble Truck Roll
+          </button>
+          <button class="truck-btn truck-btn-install" tabindex="-1" onclick="openModal('install')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Install Truck Roll
+          </button>
+        </div>
+        <div class="char-counter-wrap">
+          <textarea id="f-resolution" placeholder="Appointment details will appear here after scheduling, or type manually..." oninput="updateCounter('f-resolution','ctr-resol',500);updateProgress()"></textarea>
+          <span class="char-counter" id="ctr-resol"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="row-label"><span>Agent</span></div>
+    <div class="row-input"><input type="text" id="f-agent" placeholder="Your name" autocomplete="off"/></div>
+  </div>
+</div>
 
-   <div class="form-row">
-     <div class="row-label"><span>Name</span></div>
-     <div class="row-input">
-       <input type="text" id="f-name" placeholder="Customer full name" autocomplete="off" />
-     </div>
-   </div>
+<div class="action-bar">
+  <div class="shortcut-hint">
+    <span><kbd class="s-key">Ctrl</kbd><kbd class="s-key">Enter</kbd> Copy</span>
+    <span><kbd class="s-key">Ctrl</kbd><kbd class="s-key">⇧</kbd><kbd class="s-key">Del</kbd> Clear</span>
+  </div>
+  <span class="fields-pill" id="fieldsPill">0 / 7 fields</span>
+  <button class="btn btn-clear" tabindex="-1" onclick="clearForm()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+    Clear
+  </button>
+  <button class="btn btn-copy" id="copyBtn" tabindex="-1" onclick="copyNotes()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    Copy Notes
+  </button>
+</div>
 
-   <div class="form-row">
-     <div class="row-label"><span>Address</span></div>
-     <div class="row-input">
-       <div class="addr-wrap">
-         <input type="text" id="f-address" placeholder="Street, city, state, ZIP" autocomplete="off" />
-         <button class="inline-copy-btn" id="addrCopyBtn" onclick="copyAddress()" tabindex="-1" aria-label="Copy address to clipboard">
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-         </button>
-       </div>
-     </div>
-   </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="undo-bar" id="undoBar" role="status" aria-live="polite">
+  Form cleared — restore in <span class="undo-bar-timer" id="undoTimer">60</span>s
+  <button class="undo-btn" onclick="restoreForm()">↩ Restore</button>
+</div>
 
-   <div class="form-row">
-     <div class="row-label"><span>Phone #</span></div>
-     <div class="row-input">
-       <input type="tel" id="f-phone" placeholder="(000) 000-0000" inputmode="numeric" autocomplete="off" />
-     </div>
-   </div>
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Schedule Truck Roll</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-label">Select a Date</div>
+      <div class="date-scroll" id="dateGrid" role="group"></div>
+      <div class="modal-section-label">Select a Time Window</div>
+      <div class="time-grid" id="timeGrid" role="group"></div>
+      <div class="modal-section-label">Issue / Notes</div>
+      <textarea class="modal-notes" id="modalNotes" placeholder="Brief description of the issue..."></textarea>
+      <button class="modal-confirm" id="modalConfirm" onclick="confirmSchedule()" disabled>Add to Resolution</button>
+    </div>
+  </div>
+</div>
 
-   <div class="form-row">
-     <div class="row-label"><span>Account #</span></div>
-     <div class="row-input">
-       <div class="account-wrap">
-         <span class="account-prefix" aria-hidden="true">C</span>
-         <input type="text" id="f-account" placeholder="00000000" inputmode="numeric" maxlength="9" autocomplete="off" aria-label="Account number (C prefix added automatically)" />
-         <div class="acct-validator" id="acctValidator" aria-hidden="true">
-           <div class="acct-pip-row" id="acctPips"></div>
-           <div class="acct-check">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-           </div>
-         </div>
-         <button class="inline-copy-btn" id="acctCopyBtn" onclick="copyAccountNumber()" tabindex="-1" aria-label="Copy account number to clipboard">
-           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-         </button>
-       </div>
-     </div>
-   </div>
+<script>
+const TROUBLE_TIMES=[{label:'8-10am',full:'8:00 AM – 10:00 AM'},{label:'9-11am',full:'9:00 AM – 11:00 AM'},{label:'10am-12pm',full:'10:00 AM – 12:00 PM'},{label:'11am-1pm',full:'11:00 AM – 1:00 PM'},{label:'1-3pm',full:'1:00 PM – 3:00 PM'},{label:'3-5pm',full:'3:00 PM – 5:00 PM'},{label:'5-8pm',full:'5:00 PM – 8:00 PM'},{label:'8-10pm',full:'8:00 PM – 10:00 PM'}];
+const INSTALL_TIMES=[{label:'8-10am',full:'8:00 AM – 10:00 AM'},{label:'10am-12pm',full:'10:00 AM – 12:00 PM'},{label:'1-3pm',full:'1:00 PM – 3:00 PM'},{label:'3-5pm',full:'3:00 PM – 5:00 PM'},{label:'5-7pm',full:'5:00 PM – 7:00 PM'}];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const FIELD_IDS=['f-name','f-address','f-phone','f-account','f-issue','f-troubleshooting','f-resolution','f-agent'];
+const CTR_MAP={'f-issue':['ctr-issue',300],'f-troubleshooting':['ctr-trouble',500],'f-resolution':['ctr-resol',500]};
+let currentMode='trouble',selectedDate=null,selectedTime=null;
 
-   <div class="form-row">
-     <div class="row-label"><span>Issue</span></div>
-     <div class="row-input">
-       <div class="char-counter-wrap">
-         <textarea id="f-issue" placeholder="Describe the customer's issue..." aria-label="Issue description" oninput="updateCounter('f-issue','ctr-issue',300); updateProgress();"></textarea>
-         <span class="char-counter" id="ctr-issue" aria-live="polite"></span>
-       </div>
-     </div>
-   </div>
+function updateCounter(fid,cid,max){
+  const el=document.getElementById(fid),c=document.getElementById(cid);
+  if(!el||!c)return;
+  const len=el.value.length;
+  c.textContent=len>0?len:'';
+  c.className='char-counter'+(len>=max?' limit':len>=max*.8?' warn':'');
+}
+function updateProgress(){
+  const ids=['f-name','f-address','f-phone','f-account','f-issue','f-troubleshooting','f-resolution'];
+  const filled=ids.filter(id=>document.getElementById(id).value.trim()).length;
+  document.getElementById('progressFill').style.width=(filled/7*100)+'%';
+  const pill=document.getElementById('fieldsPill');
+  pill.textContent=`${filled} / 7 fields`;
+  pill.classList.toggle('complete',filled===7);
+}
+function toggleKbPanel(){
+  const panel=document.getElementById('kbPanel'),btn=document.getElementById('kbHelpBtn');
+  const open=panel.classList.toggle('open');
+  btn.classList.toggle('active',open);
+  btn.setAttribute('aria-expanded',open);
+}
+function toggleVerif(btn){
+  const active=btn.classList.toggle('active');
+  btn.setAttribute('aria-pressed',active);
+  const labels=[...document.querySelectorAll('.verif-btn.active')].map(b=>b.textContent.trim());
+  const ta=document.getElementById('f-troubleshooting');
+  ta.value=(labels.length?'Verified: '+labels.join(', ')+'\n':'')+ta.value.replace(/^Verified:.*\n?/,'');
+  updateCounter('f-troubleshooting','ctr-trouble',500);
+  updateProgress();
+}
+document.getElementById('f-phone').addEventListener('input',function(){
+  const d=this.value.replace(/\D/g,'').slice(0,10);
+  this.value=d.length>=7?`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`:d.length>=4?`(${d.slice(0,3)}) ${d.slice(3)}`:d.length?`(${d}`:d;
+  updateProgress();scheduleAutosave();
+});
+(function(){
+  const c=document.getElementById('acctPips');
+  for(let i=0;i<8;i++){const p=document.createElement('span');p.className='acct-pip';c.appendChild(p);}
+})();
+function updateAcctValidator(val){
+  const v=document.getElementById('acctValidator'),pips=document.querySelectorAll('.acct-pip');
+  if(!val.length){v.classList.remove('visible','complete');return;}
+  v.classList.add('visible');
+  const complete=val.length===8;
+  v.classList.toggle('complete',complete);
+  pips.forEach((p,i)=>{p.className='acct-pip'+(complete?' complete':i<val.length?' filled':'');});
+}
+document.getElementById('f-account').addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'').slice(0,8);
+  updateAcctValidator(this.value);updateProgress();scheduleAutosave();
+});
+['f-name','f-address','f-issue','f-troubleshooting','f-resolution'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{updateProgress();scheduleAutosave();});
+});
+document.getElementById('f-agent').addEventListener('input',function(){
+  localStorage.setItem('agentName',this.value);scheduleAutosave();
+});
+const savedAgent=localStorage.getItem('agentName');
+if(savedAgent)document.getElementById('f-agent').value=savedAgent;
 
-   <div class="form-row">
-     <div class="row-label"><span>Troubleshooting</span></div>
-     <div class="row-input">
-       <div class="verif-wrapper">
-         <div class="verif-btn-row" role="group" aria-label="Verification method toggles">
-           <button class="verif-btn green" tabindex="-1" onclick="toggleVerif(this,'Last 4 SSN')" aria-pressed="false">Last 4 SSN</button>
-           <button class="verif-btn green" tabindex="-1" onclick="toggleVerif(this,'Account #')" aria-pressed="false">Account #</button>
-           <button class="verif-btn red"   tabindex="-1" onclick="toggleVerif(this,'CPNI')" aria-pressed="false">CPNI</button>
-           <button class="verif-btn red"   tabindex="-1" onclick="toggleVerif(this,'Security Question')" aria-pressed="false">Security Question</button>
-         </div>
-         <div class="char-counter-wrap">
-           <textarea id="f-troubleshooting" class="tall" placeholder="Steps taken to troubleshoot..." aria-label="Troubleshooting steps" oninput="updateCounter('f-troubleshooting','ctr-trouble',500); updateProgress();"></textarea>
-           <span class="char-counter" id="ctr-trouble" aria-live="polite"></span>
-         </div>
-       </div>
-     </div>
-   </div>
-
-   <div class="form-row">
-     <div class="row-label"><span>Resolution</span></div>
-     <div class="row-input">
-       <div class="resolution-wrapper">
-         <div class="truck-btn-row">
-           <button class="truck-btn truck-btn-trouble" tabindex="-1" onclick="openModal('trouble')" aria-label="Schedule trouble truck roll (Ctrl+T)">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-             Trouble Truck Roll
-           </button>
-           <button class="truck-btn truck-btn-install" tabindex="-1" onclick="openModal('install')" aria-label="Schedule install truck roll (Ctrl+I)">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-             Install Truck Roll
-           </button>
-         </div>
-         <div class="char-counter-wrap">
-           <textarea id="f-resolution" placeholder="Appointment details will appear here after scheduling, or type manually..." aria-label="Resolution details" oninput="updateCounter('f-resolution','ctr-resol',500); updateProgress();"></textarea>
-           <span class="char-counter" id="ctr-resol" aria-live="polite"></span>
-         </div>
-       </div>
-     </div>
-   </div>
-
-   <div class="form-row">
-     <div class="row-label"><span>Agent</span></div>
-     <div class="row-input">
-       <input type="text" id="f-agent" placeholder="Your name" autocomplete="off" />
-     </div>
-   </div>
-
- </div>
-
- <div class="action-bar">
-   <div class="shortcut-hint" aria-label="Keyboard shortcut hints">
-     <span><kbd class="s-key">Ctrl</kbd><kbd class="s-key">Enter</kbd> Copy</span>
-     <span><kbd class="s-key">Ctrl</kbd><kbd class="s-key">⇧</kbd><kbd class="s-key">Del</kbd> Clear</span>
-   </div>
-   <span class="fields-pill" id="fieldsPill">0 / 7 fields</span>
-   <button class="btn btn-clear" tabindex="-1" onclick="clearForm()" aria-label="Clear form (Ctrl+Shift+Delete)">
-     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-     Clear
-   </button>
-   <button class="btn btn-copy" id="copyBtn" tabindex="-1" onclick="copyNotes()" aria-label="Copy notes to clipboard (Ctrl+Enter)">
-     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-     Copy Notes
-   </button>
- </div>
-
- <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
- <div class="undo-bar" id="undoBar" role="status" aria-live="polite">
-   Form cleared — restore in <span class="undo-bar-timer" id="undoTimer">60</span>s
-   <button class="undo-btn" onclick="restoreForm()">↩ Restore</button>
- </div>
-
- <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-   <div class="modal" id="modal">
-     <div class="modal-header">
-       <span class="modal-title" id="modalTitle">Schedule Truck Roll</span>
-       <button class="modal-close" onclick="closeModal()" aria-label="Close modal">✕</button>
-     </div>
-     <div class="modal-body">
-       <div class="modal-section-label">Select a Date</div>
-       <div class="date-scroll" id="dateGrid" role="group" aria-label="Select appointment date"></div>
-       <div class="modal-section-label">Select a Time Window</div>
-       <div class="time-grid" id="timeGrid" role="group" aria-label="Select appointment time"></div>
-       <div class="modal-section-label">Issue / Notes</div>
-       <textarea class="modal-notes" id="modalNotes" placeholder="Brief description of the issue..." aria-label="Issue notes for appointment"></textarea>
-       <button class="modal-confirm" id="modalConfirm" onclick="confirmSchedule()" disabled>Add to Resolution</button>
-     </div>
-   </div>
- </div>
-
- <script>
-   const TROUBLE_TIMES = [
-     { label:'8-10am',    full:'8:00 AM – 10:00 AM' },
-     { label:'9-11am',    full:'9:00 AM – 11:00 AM' },
-     { label:'10am-12pm', full:'10:00 AM – 12:00 PM' },
-     { label:'11am-1pm',  full:'11:00 AM – 1:00 PM' },
-     { label:'1-3pm',     full:'1:00 PM – 3:00 PM' },
-     { label:'3-5pm',     full:'3:00 PM – 5:00 PM' },
-     { label:'5-8pm',     full:'5:00 PM – 8:00 PM' },
-     { label:'8-10pm',    full:'8:00 PM – 10:00 PM' },
-   ];
-   const INSTALL_TIMES = [
-     { label:'8-10am',    full:'8:00 AM – 10:00 AM' },
-     { label:'10am-12pm', full:'10:00 AM – 12:00 PM' },
-     { label:'1-3pm',     full:'1:00 PM – 3:00 PM' },
-     { label:'3-5pm',     full:'3:00 PM – 5:00 PM' },
-     { label:'5-7pm',     full:'5:00 PM – 7:00 PM' },
-   ];
-   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-   const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-   const FIELD_IDS = ['f-name','f-address','f-phone','f-account','f-issue','f-troubleshooting','f-resolution','f-agent'];
-   const CTR_MAP = {'f-issue':'ctr-issue','f-troubleshooting':'ctr-trouble','f-resolution':'ctr-resol'};
-   let currentMode = 'trouble', selectedDate = null, selectedTime = null;
-
-   // ── Character counters ──
-   function updateCounter(fieldId, counterId, warnAt) {
-     const el = document.getElementById(fieldId);
-     const counter = document.getElementById(counterId);
-     if (!el || !counter) return;
-     const len = el.value.length;
-     counter.textContent = len > 0 ? len : '';
-     counter.classList.remove('warn','limit');
-     if (len >= warnAt) counter.classList.add('limit');
-     else if (len >= warnAt * 0.8) counter.classList.add('warn');
-   }
-
-   // ── Progress bar + fields pill ──
-   function updateProgress() {
-     const total = 7; // excluding agent (always persisted)
-     const countable = ['f-name','f-address','f-phone','f-account','f-issue','f-troubleshooting','f-resolution'];
-     const filled = countable.filter(id => document.getElementById(id).value.trim().length > 0).length;
-     const pct = Math.round((filled / total) * 100);
-     document.getElementById('progressFill').style.width = pct + '%';
-     const pill = document.getElementById('fieldsPill');
-     pill.textContent = `${filled} / ${total} fields`;
-     pill.classList.toggle('complete', filled === total);
-   }
-
-   // ── Shortcuts panel ──
-   function toggleKbPanel() {
-     const panel = document.getElementById('kbPanel');
-     const btn   = document.getElementById('kbHelpBtn');
-     const open  = panel.classList.toggle('open');
-     btn.classList.toggle('active', open);
-     btn.setAttribute('aria-expanded', open);
-   }
-
-   // ── Verification toggles ──
-   function toggleVerif(btn, label) {
-     const active = btn.classList.toggle('active');
-     btn.setAttribute('aria-pressed', active);
-     updateVerifInTroubleshooting();
-   }
-   function updateVerifInTroubleshooting() {
-     const active = [...document.querySelectorAll('.verif-btn.active')].map(b => b.textContent.trim());
-     const ta = document.getElementById('f-troubleshooting');
-     let current = ta.value.replace(/^Verified:.*\n?/, '');
-     ta.value = active.length > 0 ? 'Verified: ' + active.join(', ') + '\n' + current : current;
-     updateCounter('f-troubleshooting','ctr-trouble',500);
-     updateProgress();
-   }
-
-   // ── Phone format ──
-   document.getElementById('f-phone').addEventListener('input', function() {
-     const d = this.value.replace(/\D/g,'').slice(0,10);
-     let f = d;
-     if (d.length >= 7)      f = `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
-     else if (d.length >= 4) f = `(${d.slice(0,3)}) ${d.slice(3)}`;
-     else if (d.length >= 1) f = `(${d}`;
-     this.value = f;
-     updateProgress(); scheduleAutosave();
-   });
-
-   // ── Account digits only + validator ──
-   (function() {
-     const pipsContainer = document.getElementById('acctPips');
-     for (let i = 0; i < 8; i++) {
-       const pip = document.createElement('span');
-       pip.className = 'acct-pip';
-       pipsContainer.appendChild(pip);
-     }
-   })();
-
-   function updateAcctValidator(val) {
-     const len = val.length;
-     const validator = document.getElementById('acctValidator');
-     const pips = document.querySelectorAll('.acct-pip');
-     if (len === 0) {
-       validator.classList.remove('visible','complete');
-       return;
-     }
-     validator.classList.add('visible');
-     const complete = len === 8;
-     validator.classList.toggle('complete', complete);
-     pips.forEach((pip, i) => {
-       pip.classList.remove('filled','complete');
-       if (complete) pip.classList.add('complete');
-       else if (i < len) pip.classList.add('filled');
-     });
-   }
-
-   document.getElementById('f-account').addEventListener('input', function() {
-     this.value = this.value.replace(/\D/g,'').slice(0,8);
-     updateAcctValidator(this.value);
-     updateProgress(); scheduleAutosave();
-   });
-
-   // ── Add input listeners for progress + autosave ──
-   ['f-name','f-address','f-issue','f-troubleshooting','f-resolution'].forEach(id => {
-     document.getElementById(id).addEventListener('input', () => { updateProgress(); scheduleAutosave(); });
-   });
-   document.getElementById('f-agent').addEventListener('input', function() {
-     localStorage.setItem('agentName', this.value);
-     scheduleAutosave();
-   });
-
-   // ── Agent persistence ──
-   const savedAgent = localStorage.getItem('agentName');
-   if (savedAgent) document.getElementById('f-agent').value = savedAgent;
-
-   // ── Auto-save to sessionStorage ──
-   let autosaveTimer = null;
-   function scheduleAutosave() {
-     const badge = document.getElementById('autosaveBadge');
-     const txt   = document.getElementById('autosaveText');
-     badge.className = 'autosave-badge saving';
-     txt.textContent = 'Saving…';
-     clearTimeout(autosaveTimer);
-     autosaveTimer = setTimeout(() => {
-       const state = {};
-       FIELD_IDS.forEach(id => { state[id] = document.getElementById(id).value; });
-       try { sessionStorage.setItem('notation_autosave', JSON.stringify(state)); } catch(e) {}
-       badge.className = 'autosave-badge saved';
-       txt.textContent = 'Saved';
-       setTimeout(() => {
-         badge.className = 'autosave-badge';
-         txt.textContent = 'Auto-save on';
-       }, 2000);
-     }, 800);
-   }
-
-   // ── Restore from sessionStorage on load ──
-   (function restoreSession() {
-     try {
-       const raw = sessionStorage.getItem('notation_autosave');
-       if (!raw) return;
-       const state = JSON.parse(raw);
-       let hasData = false;
-       FIELD_IDS.forEach(id => {
-         const el = document.getElementById(id);
-         if (el && state[id] && id !== 'f-agent') { el.value = state[id]; hasData = true; }
-       });
-       if (hasData) {
-         Object.entries(CTR_MAP).forEach(([fid, cid]) => {
-           const maxes = {'f-issue':300,'f-troubleshooting':500,'f-resolution':500};
-           updateCounter(fid, cid, maxes[fid]);
-         });
-         updateProgress();
-         updateAcctValidator(document.getElementById('f-account').value);
-         showToast('↩ Session restored');
-       }
-     } catch(e) {}
-   })();
-
-   // ── Snapshot / Undo ──
-   let savedSnapshot = null, undoCountdown = null;
-
-   function snapshotForm() {
-     const s = {};
-     FIELD_IDS.forEach(id => { const el = document.getElementById(id); if (el) s[id] = el.value; });
-     return s;
-   }
-   function clearForm() {
-     savedSnapshot = snapshotForm();
-     document.querySelectorAll('.verif-btn.active').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
-     FIELD_IDS.forEach(id => {
-       if (id === 'f-agent') return;
-       const el = document.getElementById(id); if (el) el.value = '';
-     });
-     Object.entries(CTR_MAP).forEach(([,cid]) => { const c = document.getElementById(cid); if (c) c.textContent = ''; });
-     try { sessionStorage.removeItem('notation_autosave'); } catch(e) {}
-     updateProgress();
-     document.getElementById('f-name').focus();
-     startUndoCountdown();
-   }
-   function startUndoCountdown() {
-     const bar = document.getElementById('undoBar');
-     const timerEl = document.getElementById('undoTimer');
-     let secs = 60; timerEl.textContent = secs; bar.classList.add('show');
-     if (undoCountdown) clearInterval(undoCountdown);
-     undoCountdown = setInterval(() => {
-       secs--; timerEl.textContent = secs;
-       if (secs <= 0) { clearInterval(undoCountdown); bar.classList.remove('show'); savedSnapshot = null; }
-     }, 1000);
-   }
-   function restoreForm() {
-     if (!savedSnapshot) return;
-     FIELD_IDS.forEach(id => {
-       const el = document.getElementById(id);
-       if (el && savedSnapshot[id] !== undefined) el.value = savedSnapshot[id];
-     });
-     updateCounter('f-issue','ctr-issue',300);
-     updateCounter('f-troubleshooting','ctr-trouble',500);
-     updateCounter('f-resolution','ctr-resol',500);
-     updateProgress();
-     clearInterval(undoCountdown);
-     document.getElementById('undoBar').classList.remove('show');
-     savedSnapshot = null;
-   }
-
-   // ── Inline copy ──
-   function copyAddress() {
-     const val = document.getElementById('f-address').value.trim();
-     if (val) copyToClipboard(val, 'addrCopyBtn');
-   }
-   function copyAccountNumber() {
-     const val = document.getElementById('f-account').value.trim();
-     if (val) copyToClipboard('C' + val, 'acctCopyBtn');
-   }
-   function copyToClipboard(text, btnId) {
-     const checkSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>`;
-     const copySVG  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-     const btn = document.getElementById(btnId);
-     navigator.clipboard.writeText(text).then(() => {
-       btn.classList.add('copied'); btn.innerHTML = checkSVG;
-       setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = copySVG; }, 2000);
-     }).catch(() => {
-       const ta = document.createElement('textarea');
-       ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-       document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-       btn.classList.add('copied'); btn.innerHTML = checkSVG;
-       setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = copySVG; }, 2000);
-     });
-   }
-
-   // ── Copy Notes ──
-    // Issue, Troubleshooting, Resolution each start on a NEW line after their label
-    function copyNotes() {
-      const parts = [];
-
-      // Group 1: flat header fields on one line each
-      const name    = document.getElementById('f-name').value.trim();
-      const address = document.getElementById('f-address').value.trim();
-      const phone   = document.getElementById('f-phone').value.trim();
-      const acct    = document.getElementById('f-account').value.trim();
-
-      const headerLines = [];
-      if (name)    headerLines.push(`Name: ${name}`);
-      if (address) headerLines.push(`Address: ${address}`);
-      if (phone)   headerLines.push(`Phone Number: ${phone}`);
-      if (acct)    headerLines.push(`Account Number: C${acct}`);
-      if (headerLines.length) parts.push(headerLines.join('\n'));
-
-      // Group 2–4: label on its own line, content below
-      const issue   = document.getElementById('f-issue').value.trim();
-      const trouble = document.getElementById('f-troubleshooting').value.trim();
-      const resol   = document.getElementById('f-resolution').value.trim();
-      const agent   = document.getElementById('f-agent').value.trim();
-
-      if (issue)   parts.push(`Issue:\n${issue}`);
-      if (trouble) parts.push(`Troubleshooting:\n${trouble}`);
-      if (resol)   parts.push(`Resolution:\n${resol}`);
-      if (agent)   parts.push(`Agent Name: ${agent}`);
-
-      if (parts.length === 0) { alert('Nothing to copy — form is empty.'); return; }
-
-      const text = parts.join('\n\n');
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyBtn');
-        btn.classList.add('success');
-        btn.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-        showToast();
-        setTimeout(() => {
-          btn.classList.remove('success');
-          btn.querySelector('svg').innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
-        }, 2000);
-      }).catch(() => {
-        const ta = document.createElement('textarea');
-        ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-        showToast();
-      });
+let autosaveTimer=null;
+function scheduleAutosave(){
+  const badge=document.getElementById('autosaveBadge'),txt=document.getElementById('autosaveText');
+  badge.className='autosave-badge saving';txt.textContent='Saving…';
+  clearTimeout(autosaveTimer);
+  autosaveTimer=setTimeout(()=>{
+    const s={};
+    FIELD_IDS.forEach(id=>{s[id]=document.getElementById(id).value;});
+    try{sessionStorage.setItem('notation_autosave',JSON.stringify(s));}catch(e){}
+    badge.className='autosave-badge saved';txt.textContent='Saved';
+    setTimeout(()=>{badge.className='autosave-badge';txt.textContent='Auto-save on';},1800);
+  },800);
+}
+(function(){
+  try{
+    const raw=sessionStorage.getItem('notation_autosave');
+    if(!raw)return;
+    const s=JSON.parse(raw);let has=false;
+    FIELD_IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&s[id]&&id!=='f-agent'){el.value=s[id];has=true;}
+    });
+    if(has){
+      Object.entries(CTR_MAP).forEach(([fid,[cid,max]])=>updateCounter(fid,cid,max));
+      updateProgress();updateAcctValidator(document.getElementById('f-account').value);
+      showToast('↩ Session restored');
     }
+  }catch(e){}
+})();
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg || '✓ Copied to clipboard';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
-    }
-
-   // ── Keyboard shortcuts ──
-   document.addEventListener('keydown', function(e) {
-     const ctrl = e.ctrlKey || e.metaKey;
-     const inField = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
-     if (e.key === 'Escape') { closeModal(); return; }
-     if (!ctrl) return;
-     if (e.key === 'Enter')  { e.preventDefault(); copyNotes(); return; }
-     if (e.key === 'Delete' && e.shiftKey) { e.preventDefault(); clearForm(); return; }
-     if ((e.key === 'z' || e.key === 'Z') && !inField && savedSnapshot) { e.preventDefault(); restoreForm(); return; }
-     if (e.key === 't' || e.key === 'T') { e.preventDefault(); openModal('trouble'); return; }
-     if ((e.key === 'i' || e.key === 'I') && !inField) { e.preventDefault(); openModal('install'); return; }
-     if (e.key === '/') { e.preventDefault(); toggleKbPanel(); return; }
-   });
-
-   // ── Modal ──
-   function buildDateGrid() {
-     const grid = document.getElementById('dateGrid'); grid.innerHTML = '';
-     const today = new Date(); today.setHours(0,0,0,0);
-     for (let i = 0; i <= 30; i++) {
-       const d = new Date(today); d.setDate(today.getDate() + i);
-       const cell = document.createElement('div');
-       cell.className = 'date-cell' + (i === 0 ? ' today' : '');
-       cell.setAttribute('role','button'); cell.setAttribute('tabindex','0');
-       cell.setAttribute('aria-label', `${DAYS[d.getDay()]} ${MONTHS[d.getMonth()]} ${d.getDate()}`);
-       cell.innerHTML = `<span class="dow">${DAYS[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="month-abbr">${MONTHS[d.getMonth()]}</span>`;
-       cell.addEventListener('click', () => selectDate(cell, d));
-       cell.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); selectDate(cell,d); } });
-       grid.appendChild(cell);
-     }
-   }
-   function selectDate(cell, dateObj) {
-     document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('selected-trouble','selected-install'));
-     cell.classList.add(`selected-${currentMode}`);
-     selectedDate = dateObj; selectedTime = null;
-     document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected-trouble','selected-install'));
-     updateConfirmBtn();
-   }
-   function buildTimeGrid() {
-     const grid = document.getElementById('timeGrid'); grid.innerHTML = '';
-     if (currentMode === 'trouble') {
-       const allDay = document.createElement('button');
-       allDay.className = 'time-btn all-day-btn'; allDay.textContent = '☀ All Day';
-       allDay.addEventListener('click', () => selectTime(allDay,'All Day'));
-       grid.appendChild(allDay);
-     }
-     (currentMode === 'trouble' ? TROUBLE_TIMES : INSTALL_TIMES).forEach(t => {
-       const btn = document.createElement('button');
-       btn.className = 'time-btn'; btn.textContent = t.full;
-       btn.addEventListener('click', () => selectTime(btn, t.label));
-       grid.appendChild(btn);
-     });
-   }
-   function selectTime(btn, label) {
-     document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected-trouble','selected-install'));
-     btn.classList.add(`selected-${currentMode}`);
-     selectedTime = label; updateConfirmBtn();
-   }
-   function updateConfirmBtn() {
-     document.getElementById('modalConfirm').disabled = !(selectedDate && selectedTime);
-   }
-   function openModal(mode) {
-     currentMode = mode; selectedDate = null; selectedTime = null;
-     const title = document.getElementById('modalTitle');
-     title.textContent = mode === 'trouble' ? 'Schedule Trouble Truck Roll' : 'Schedule Install Truck Roll';
-     title.className = `modal-title ${mode}`;
-     const confirm = document.getElementById('modalConfirm');
-     confirm.className = `modal-confirm ${mode}`; confirm.disabled = true;
-     document.getElementById('modalNotes').value = '';
-     buildDateGrid(); buildTimeGrid();
-     document.getElementById('modalOverlay').classList.add('open');
-   }
-   function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-   function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
-
-   function confirmSchedule() {
-     if (!selectedDate || !selectedTime) return;
-     const parts = [`${selectedDate.getMonth()+1}/${selectedDate.getDate()}`, selectedTime];
-     const phone = document.getElementById('f-phone').value.trim();
-     const name  = document.getElementById('f-name').value.trim();
-     const notes = document.getElementById('modalNotes').value.trim();
-     if (phone) parts.push(phone);
-     if (name)  parts.push(name);
-     if (notes) parts.push(notes);
-     const line = parts.join(' ');
-     const existing = document.getElementById('f-resolution').value.trim();
-     document.getElementById('f-resolution').value = existing ? existing + '\n' + line : line;
-     updateCounter('f-resolution','ctr-resol',500);
-     updateProgress();
-     scheduleAutosave();
-     closeModal();
-   }
-
-   // ── Clock ──
-   function updateClock() {
-     document.getElementById('clock').textContent = new Date().toLocaleString('en-US',{
-       month:'short',day:'2-digit',year:'numeric',
-       hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true
-     });
-   }
-   updateClock(); setInterval(updateClock, 1000);
-
-   // ── Init ──
-   updateProgress();
- </script>
+let savedSnapshot=null,undoCountdown=null;
+function snapshotForm(){const s={};FIELD_IDS.forEach(id=>{const e=document.getElementById(id);if(e)s[id]=e.value;});return s;}
+function clearForm(){
+  savedSnapshot=snapshotForm();
+  document.querySelectorAll('.verif-btn.active').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});
+  FIELD_IDS.forEach(id=>{if(id==='f-agent')return;const e=document.getElementById(id);if(e)e.value='';});
+  Object.entries(CTR_MAP).forEach(([,[cid]])=>{const c=document.getElementById(cid);if(c)c.textContent='';});
+  try{sessionStorage.removeItem('notation_autosave');}catch(e){}
+  updateProgress();document.getElementById('f-name').focus();startUndoCountdown();
+}
+function startUndoCountdown(){
+  const bar=document.getElementById('undoBar'),el=document.getElementById('undoTimer');
+  let s=60;el.textContent=s;bar.classList.add('show');
+  if(undoCountdown)clearInterval(undoCountdown);
+  undoCountdown=setInterval(()=>{el.textContent=--s;if(s<=0){clearInterval(undoCountdown);bar.classList.remove('show');savedSnapshot=null;}},1000);
+}
+function restoreForm(){
+  if(!savedSnapshot)return;
+  FIELD_IDS.forEach(id=>{const e=document.getElementById(id);if(e&&savedSnapshot[id]!==undefined)e.value=savedSnapshot[id];});
+  Object.entries(CTR_MAP).forEach(([fid,[cid,max]])=>updateCounter(fid,cid,max));
+  updateProgress();clearInterval(undoCountdown);
+  document.getElementById('undoBar').classList.remove('show');savedSnapshot=null;
+}
+function copyAddress(){const v=document.getElementById('f-address').value.trim();if(v)copyToClipboard(v,'addrCopyBtn');}
+function copyAccountNumber(){const v=document.getElementById('f-account').value.trim();if(v)copyToClipboard('C'+v,'acctCopyBtn');}
+const COPY_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>';
+function copyToClipboard(text,btnId){
+  const btn=document.getElementById(btnId);
+  const done=()=>{btn.classList.add('copied');btn.innerHTML=CHECK_SVG;setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=COPY_SVG;},2000);};
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(done).catch(()=>{legacyCopy(text);done();});}
+  else{legacyCopy(text);done();}
+}
+function legacyCopy(text){const t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}
+function copyNotes(){
+  const g=id=>document.getElementById(id).value.trim();
+  const parts=[];
+  const header=[];
+  if(g('f-name'))header.push('Name: '+g('f-name'));
+  if(g('f-address'))header.push('Address: '+g('f-address'));
+  if(g('f-phone'))header.push('Phone Number: '+g('f-phone'));
+  if(g('f-account'))header.push('Account Number: C'+g('f-account'));
+  if(header.length)parts.push(header.join('\n'));
+  if(g('f-issue'))parts.push('Issue:\n'+g('f-issue'));
+  if(g('f-troubleshooting'))parts.push('Troubleshooting:\n'+g('f-troubleshooting'));
+  if(g('f-resolution'))parts.push('Resolution:\n'+g('f-resolution'));
+  if(g('f-agent'))parts.push('Agent Name: '+g('f-agent'));
+  if(!parts.length){alert('Nothing to copy — form is empty.');return;}
+  const text=parts.join('\n\n');
+  const btn=document.getElementById('copyBtn');
+  const done=()=>{
+    btn.classList.add('success');
+    btn.querySelector('svg').innerHTML='<polyline points="20 6 9 17 4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    showToast();
+    setTimeout(()=>{btn.classList.remove('success');btn.querySelector('svg').innerHTML='<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';},2000);
+  };
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(done).catch(()=>{legacyCopy(text);done();});}
+  else{legacyCopy(text);done();}
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg||'✓ Copied to clipboard';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+document.addEventListener('keydown',function(e){
+  const ctrl=e.ctrlKey||e.metaKey;
+  if(e.key==='Escape'){closeModal();return;}
+  if(!ctrl)return;
+  if(e.key==='Enter'){e.preventDefault();copyNotes();return;}
+  if(e.key==='Delete'&&e.shiftKey){e.preventDefault();clearForm();return;}
+  const inField=['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
+  if((e.key==='z'||e.key==='Z')&&!inField&&savedSnapshot){e.preventDefault();restoreForm();return;}
+  if(e.key==='t'||e.key==='T'){e.preventDefault();openModal('trouble');return;}
+  if((e.key==='i'||e.key==='I')&&!inField){e.preventDefault();openModal('install');return;}
+  if(e.key==='/'){e.preventDefault();toggleKbPanel();return;}
+});
+function buildDateGrid(){
+  const grid=document.getElementById('dateGrid');grid.innerHTML='';
+  const today=new Date();today.setHours(0,0,0,0);
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<=30;i++){
+    const d=new Date(today);d.setDate(today.getDate()+i);
+    const cell=document.createElement('div');
+    cell.className='date-cell'+(i===0?' today':'');
+    cell.setAttribute('role','button');cell.setAttribute('tabindex','0');
+    cell.innerHTML=`<span class="dow">${DAYS[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="month-abbr">${MONTHS[d.getMonth()]}</span>`;
+    cell.addEventListener('click',()=>selectDate(cell,d));
+    cell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectDate(cell,d);}});
+    frag.appendChild(cell);
+  }
+  grid.appendChild(frag);
+}
+function selectDate(cell,dateObj){
+  document.querySelectorAll('.date-cell').forEach(c=>c.classList.remove('selected-trouble','selected-install'));
+  cell.classList.add(`selected-${currentMode}`);
+  selectedDate=dateObj;selectedTime=null;
+  document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('selected-trouble','selected-install'));
+  updateConfirmBtn();
+}
+function buildTimeGrid(){
+  const grid=document.getElementById('timeGrid');grid.innerHTML='';
+  const frag=document.createDocumentFragment();
+  if(currentMode==='trouble'){
+    const btn=document.createElement('button');btn.className='time-btn all-day-btn';btn.textContent='☀ All Day';
+    btn.addEventListener('click',()=>selectTime(btn,'All Day'));frag.appendChild(btn);
+  }
+  (currentMode==='trouble'?TROUBLE_TIMES:INSTALL_TIMES).forEach(t=>{
+    const btn=document.createElement('button');btn.className='time-btn';btn.textContent=t.full;
+    btn.addEventListener('click',()=>selectTime(btn,t.label));frag.appendChild(btn);
+  });
+  grid.appendChild(frag);
+}
+function selectTime(btn,label){
+  document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('selected-trouble','selected-install'));
+  btn.classList.add(`selected-${currentMode}`);selectedTime=label;updateConfirmBtn();
+}
+function updateConfirmBtn(){document.getElementById('modalConfirm').disabled=!(selectedDate&&selectedTime);}
+function openModal(mode){
+  currentMode=mode;selectedDate=null;selectedTime=null;
+  const title=document.getElementById('modalTitle');
+  title.textContent=mode==='trouble'?'Schedule Trouble Truck Roll':'Schedule Install Truck Roll';
+  title.className=`modal-title ${mode}`;
+  const confirm=document.getElementById('modalConfirm');
+  confirm.className=`modal-confirm ${mode}`;confirm.disabled=true;
+  document.getElementById('modalNotes').value='';
+  buildDateGrid();buildTimeGrid();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function handleOverlayClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function confirmSchedule(){
+  if(!selectedDate||!selectedTime)return;
+  const parts=[`${selectedDate.getMonth()+1}/${selectedDate.getDate()}`,selectedTime];
+  const phone=document.getElementById('f-phone').value.trim();
+  const name=document.getElementById('f-name').value.trim();
+  const notes=document.getElementById('modalNotes').value.trim();
+  if(phone)parts.push(phone);if(name)parts.push(name);if(notes)parts.push(notes);
+  const existing=document.getElementById('f-resolution').value.trim();
+  document.getElementById('f-resolution').value=existing?existing+'\n'+parts.join(' '):parts.join(' ');
+  updateCounter('f-resolution','ctr-resol',500);updateProgress();scheduleAutosave();closeModal();
+}
+function updateClock(){
+  document.getElementById('clock').textContent=new Date().toLocaleString('en-US',{month:'short',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+}
+updateClock();setInterval(updateClock,1000);
+updateProgress();
+</script>
 </body>
 </html>
