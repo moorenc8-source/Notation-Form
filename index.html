@@ -612,10 +612,11 @@ async function lookupMac(){
   const mac=document.getElementById('f-mac').value;
   res.className='mac-result show notfound';res.innerHTML='Looking up…';
   try{
-    const r=await fetch(`https://api.macvendors.com/${encodeURIComponent(mac)}`);
-    if(r.status===404){res.className='mac-result show notfound';res.innerHTML='No vendor found for that MAC address.';}
-    else if(!r.ok){res.className='mac-result show error';res.innerHTML='Lookup failed — try again shortly.';}
-    else{const vendor=await r.text();res.className='mac-result show found';res.innerHTML=`<strong>${vendor}</strong>`;}
+    const r=await fetch(`https://api.maclookup.app/v2/macs/${encodeURIComponent(mac)}`,{headers:{Accept:'application/json'}});
+    if(!r.ok){res.className='mac-result show error';res.innerHTML='Lookup failed — try again shortly.';return;}
+    const data=await r.json();
+    if(!data.found){res.className='mac-result show notfound';res.innerHTML='No vendor found for that MAC address.';}
+    else{res.className='mac-result show found';res.innerHTML=`<strong>${data.company}</strong>${data.country?' &nbsp;·&nbsp; '+data.country:''}`;}
   }catch(e){res.className='mac-result show error';res.innerHTML='Network error — check connection.';}
 }
 
