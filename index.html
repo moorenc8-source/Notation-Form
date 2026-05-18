@@ -53,6 +53,7 @@ header{display:flex;flex-direction:column;border-bottom:1px solid var(--border);
   overflow:auto;display:flex;flex-direction:column;min-height:0;
 }
 .form-row{display:flex;align-items:stretch;border-bottom:1px solid rgba(30,46,70,.6);position:relative;flex-shrink:0}
+.form-row.grow{flex:1;min-height:0}
 .form-row:last-child{border-bottom:none}
 .form-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent-light),var(--accent-deep));opacity:0;transition:opacity .2s;z-index:1}
 .form-row:focus-within::before{opacity:1}
@@ -62,9 +63,12 @@ header{display:flex;flex-direction:column;border-bottom:1px solid var(--border);
 .row-label{width:108px;min-width:108px;background:linear-gradient(90deg,#0e1620 60%,transparent);display:flex;align-items:center;justify-content:center;padding:0 10px 0 8px;border-right:1px solid rgba(30,46,70,.7);user-select:none;flex-shrink:0;transition:background .2s,border-color .2s}
 .row-label span{font-family:var(--mono);font-size:clamp(8px,.75vw,10px);font-weight:700;color:var(--label-text);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;transition:color .2s;text-align:center}
 .row-input{flex:1;min-width:0;overflow:hidden;position:relative}
+.grow .row-input{display:flex;flex-direction:column}
+.grow .char-counter-wrap,.grow .verif-wrapper,.grow .resolution-wrapper{flex:1;display:flex;flex-direction:column;min-height:0}
+.grow .char-counter-wrap textarea,.grow .verif-wrapper textarea,.grow .resolution-wrapper textarea{flex:1;min-height:0;height:auto}
 .row-input input,.row-input textarea{width:100%;background:var(--input-bg);border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:clamp(11px,1vw,14px);font-weight:300;padding:8px 12px;resize:none;line-height:1.45;transition:background .15s}
 .row-input input:focus,.row-input textarea:focus{background:var(--input-focus)}
-.row-input textarea{min-height:52px;max-height:120px}
+.row-input textarea{min-height:40px;height:100%}
 input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
 .char-counter-wrap{position:relative;width:100%}
 .char-counter{position:absolute;bottom:5px;right:10px;font-family:var(--mono);font-size:clamp(8px,.7vw,10px);color:#253748;pointer-events:none;transition:color .2s;user-select:none}
@@ -227,7 +231,7 @@ input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
       </div>
     </div>
   </div>
-  <div class="form-row">
+  <div class="form-row grow">
     <div class="row-label"><span>Issue</span></div>
     <div class="row-input">
       <div class="char-counter-wrap">
@@ -236,7 +240,7 @@ input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
       </div>
     </div>
   </div>
-  <div class="form-row">
+  <div class="form-row grow">
     <div class="row-label"><span>Troubleshooting</span></div>
     <div class="row-input">
       <div class="verif-wrapper">
@@ -253,7 +257,7 @@ input::placeholder,textarea::placeholder{color:#253748;font-weight:300}
       </div>
     </div>
   </div>
-  <div class="form-row">
+  <div class="form-row grow">
     <div class="row-label"><span>Resolution</span></div>
     <div class="row-input">
       <div class="resolution-wrapper">
