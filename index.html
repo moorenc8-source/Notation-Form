@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Agent Notation Form</title>
+<title>Agent Notation Form — Option 1</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* 1 — bluer-black backgrounds */
-  --bg:#060b16;--surface:#0e1724;--surface2:#162030;--surface3:#1c2a3e;
-  --input-bg:#111e2e;--input-focus:#162540;
-  --border:#1c2f48;--border2:#254060;
-  /* accent — unchanged, this is the blue you love */
+  /* Option 1 — Deep Navy + Warm Amber */
+  --bg:#080a12;--surface:#0d1220;--surface2:#121928;--surface3:#182030;
+  --input-bg:#0f1726;--input-focus:#141f30;
+  --border:#1e2a40;--border2:#283850;
+  /* accent — same blue anchor */
   --accent:#0392cf;--accent-deep:#0278ab;--accent-light:#2aaddf;--accent-xlight:#5cc4ea;--accent-dim:rgba(3,146,207,0.12);
-  --green:#2ec98a;--red:#e05a5a;--orange:#f59e2e;--purple:#8b7cf8;
-  /* 2 — label column wider contrast, crisper text */
-  --text:#e4f0fa;--text-muted:#5a7a94;
-  --label-bg:#080f1c;--label-border:rgba(20,38,62,.95);
-  --section-divider:#1a2e46;
+  /* warm amber replaces orange, rest kept */
+  --green:#2ec98a;--red:#e05a5a;--orange:#e8a030;--purple:#8b7cf8;
+  /* text — slightly warmer white, muted toned down */
+  --text:#e8eef6;--text-muted:#5c7080;
+  --label-bg:#080c18;--label-border:rgba(18,28,50,.98);
+  --section-divider:#1a2440;
   --mono:'Space Mono',monospace;--sans:'Inter',sans-serif;
 }
 html,body{height:100%;overflow:hidden}
@@ -88,7 +89,7 @@ header{display:flex;flex-direction:column;border-bottom:1px solid rgba(3,146,207
 }
 .row-label span{
   font-family:var(--sans);font-size:clamp(10px,.82vw,11px);font-weight:600;
-  color:rgba(255,255,255,.88);letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.88);letter-spacing:.04em;text-transform:uppercase;
   white-space:normal;word-break:break-word;transition:color .2s;text-align:center;line-height:1.35;
 }
 .form-row:focus-within .row-label span{color:#fff;}
@@ -97,10 +98,12 @@ header{display:flex;flex-direction:column;border-bottom:1px solid rgba(3,146,207
 .row-input{flex:1;min-width:0;overflow:hidden;position:relative}
 .grow .row-input{display:flex;flex-direction:column}
 .grow .char-counter-wrap,.grow .verif-wrapper,.grow .resolution-wrapper{flex:1;display:flex;flex-direction:column;min-height:0}
-.grow .char-counter-wrap textarea,.grow .verif-wrapper textarea,.grow .resolution-wrapper textarea{flex:1;min-height:0;height:auto}
+.grow .char-counter-wrap textarea,.grow .verif-wrapper textarea,.grow .resolution-wrapper textarea{flex:1;min-height:0;height:auto;overflow-y:auto;scrollbar-width:none}
+.grow .char-counter-wrap textarea::-webkit-scrollbar,.grow .verif-wrapper textarea::-webkit-scrollbar,.grow .resolution-wrapper textarea::-webkit-scrollbar{display:none}
 .row-input input,.row-input textarea{width:100%;background:var(--input-bg);border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,15px);font-weight:400;padding:9px 13px;resize:none;line-height:1.5;transition:background .15s;letter-spacing:.01em}
 .row-input input:focus,.row-input textarea:focus{background:var(--input-focus)}
 .row-input textarea{min-height:40px;height:auto;overflow:hidden}
+.form-row.grow .row-input textarea{overflow-y:auto}
 
 input::placeholder,textarea::placeholder{color:#3e5f78;font-weight:300;font-style:italic}
 
